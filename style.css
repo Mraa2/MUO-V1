@@ -22,7 +22,6 @@ html, body {
 }
 
 body {
-    padding-bottom: calc(16px + env(safe-area-inset-bottom));
     background-color: var(--background);
     font-family: Arial;
 }
@@ -161,7 +160,7 @@ p {
 #addSmthing{
     position: fixed;
 
-    top: 85vh;
+    top: 83vh;
     left: 75vw;
 
     width: 10vw;
@@ -188,7 +187,7 @@ p {
 
 #hablahabla {
     position: fixed;
-    top: 85vh;
+    top: 83vh;
     left: 75vw;
 
     width: 10vw;
@@ -205,7 +204,7 @@ p {
 .iconGetNext {
     position: absolute;
 
-    top: 95vh;
+    top: 89vh;
     left: 85vw;
 
     transform: translateX(var(--move-offset, 0vw));
@@ -226,7 +225,7 @@ p {
 
 .iconGetBack2 {
     position: fixed;
-    top: 95vh;
+    top: 89vh;
     left: 12vw;
 
     width: 3vw;
@@ -309,7 +308,7 @@ p {
 
     /* Size */
     width: 80vw;
-    height: 44vh;
+    height: 43vh;
 
     display: flex; 
     flex-direction: column; 
@@ -368,10 +367,10 @@ p {
 #answersTable {
     background-color: transparent;
     position: fixed;
-    top: 51vh;
+    top: 50vh;
     left: 15vw;
     width: 70vw;
-    height: 38vh;
+    height: 37vh;
     display: grid;
     grid-template-columns: repeat(1, 1fr);
    /* grid: 0.2vw;*/
@@ -388,7 +387,7 @@ p {
     font-size: 1.8vh;
     background-color: yellow;
     position: fixed;
-    top: 90vh;
+    top: 87vh;
     left: 2vw;
 
     width: 22.5vw;
@@ -400,7 +399,7 @@ p {
     font-size: 1.8vh;
     background-color: orange;
     position: fixed;
-    top: 90vh;
+    top: 87vh;
     left: 26.5vw;
 
     width: 22.5vw;
@@ -412,7 +411,7 @@ p {
     font-size: 1.8vh;
     background-color: red;
     position: fixed;
-    top: 90vh;
+    top: 87vh;
     left: 51vw;
 
     width: 22.5vw;
@@ -424,7 +423,7 @@ p {
     font-size: 1.8vh;
     background-color: blue;
     position: fixed;
-    top: 90vh;
+    top: 87vh;
     left: 75.5vw;
 
     width: 22.5vw;
