@@ -92,8 +92,8 @@ function calculateQueryState(query) {
 
 function createQuestionClasses(){
 	const QuestionsData = topics[curTopicName];
-	const DatabaseData = basicDataBase[curTopicName];
-	const StarsDataBABA = hasStar[curTopicName];
+	const DatabaseData = basicDataBase[curTopicName] || [];
+	const StarsDataBABA = hasStar[curTopicName] || [];
 
 	curQPC["all"] = QuestionsData;
 	curQPC["unknown"] = [];
