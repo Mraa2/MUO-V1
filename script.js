@@ -32,11 +32,13 @@ const confirmationOverlay = document.getElementById("confirmationOverlay");
 const confirmationBox = document.getElementById("confirmationBox");
 const showcaseBar = document.getElementById("showcaseBar");
 const darkModeButton = document.getElementById("darkMode");
+const WithStar = document.getElementById("WithStar");
 
 const topics = {};
 const imagesForTopics = {};
 
 const basicDataBase = {};
+const hasStar = {};
 
 const dataTable = [];
 const imageTable = {};
@@ -47,6 +49,7 @@ let currentId;
 let createdFile;
 const createdIds = {};
 let progress;
+let staring;
 
 let curName;
 let curTopicName;
@@ -90,10 +93,12 @@ function calculateQueryState(query) {
 function createQuestionClasses(){
 	const QuestionsData = topics[curTopicName];
 	const DatabaseData = basicDataBase[curTopicName];
+	const StarsDataBABA = hasStar[curTopicName];
 
 	curQPC["all"] = QuestionsData;
 	curQPC["unknown"] = [];
 	curQPC["wrong"] = [];
+	curQPC["stars"] = [];
 
 	if (DatabaseData) {
 		for(let i = 0; i < QuestionsData.length; i++) {
@@ -101,6 +106,7 @@ function createQuestionClasses(){
 			const gotThis = qData["question"];
 
 			const currentQuery = DatabaseData[gotThis];
+			const currentQuery2 = StarsDataBABA[gotThis];
 
 			if (!currentQuery) {
 				curQPC["unknown"].push(qData);
@@ -110,6 +116,10 @@ function createQuestionClasses(){
 				if (weight < 0) {
 					curQPC["wrong"].push(qData);
 				}
+			}
+
+			if (currentQuery2) {
+				curQPC["stars"].push(qData);
 			}
 		}
 	}
@@ -125,6 +135,7 @@ function createQuestionClasses(){
 		all: "Všechny otázky",
 		unknown: "Neznáme otázky",
 		wrong: "Potížisti",
+		stars: "S hvězdičkou",
 	};
 
 	const newArray = [];
@@ -132,14 +143,16 @@ function createQuestionClasses(){
 	newArray.push(curQPC["all"]);
 	newArray.push(curQPC["unknown"]);
 	newArray.push(curQPC["wrong"]);
+	newArray.push(curQPC["stars"])
 
-	const order = ["all", "unknown", "wrong"]
+	const order = ["all", "unknown", "wrong", "stars"]
 
 	const icons = {
 		all: "",
 		unknown: `<i class="fa-solid fa-question iconInsideLookin"></i>`,
-		wrong: `<i class="fa-solid fa-triangle-exclamation iconInsideLookin"></i>`
-	}
+		wrong: `<i class="fa-solid fa-triangle-exclamation iconInsideLookin"></i>`,
+		stars: `<i class="fa-solid fa-star iconInsideLookin"></i>`,
+	};
 
 	for (let i = 0; i < newArray.length; i++) {
 		const key = order[i]
@@ -173,14 +186,11 @@ function createQuestionClasses(){
 			
 			newObject.onclick = function(){
 				const QTP = newObject.dataset.qtp;
-				console.log(newObject.dataset, newObject.dataset.qtp);
 				curOQT = QTP;
 				openAUkNsWR();
 			};
 		}
 	}
-	
-	console.log(curQPC, curOQT);
 }
 
 const observer = new MutationObserver(() => {
@@ -196,6 +206,7 @@ const observer = new MutationObserver(() => {
         }
 
         saveProgress(fileIdifc, basicDataBase[curTopicName]);
+        saveStars(fileIdifc, hasStar[curTopicName])
     }
 });
 
@@ -385,8 +396,8 @@ function updatePageAll(count){
 	const on = curRandom[curOQT][onIndex + count];
 
 	if (on) {
-		createQuestionButtons(on);
 		onIndex = onIndex + count;
+		createQuestionButtons(on);
 	}
 }
 
@@ -394,7 +405,19 @@ function numberToLetter(num) {
   return String.fromCharCode(num + 64);
 }
 
+function createStar() {
+	hasStar[curTopicName] = hasStar[curTopicName] || {};
+	const on = curRandom[curOQT][onIndex]["question"];
+
+	if (hasStar[curTopicName][on] == true) {
+		WithStar.innerHTML = `<i class="fa-solid fa-star"></i>`;
+	} else {
+		WithStar.innerHTML = `<i class="fa-regular fa-star"></i>`;
+	}
+}
+
 function createQuestionButtons(on){
+	createStar();
 	const questionImage = on["question"];
 
 	const qS = questionImage.split("(imgsep)")
@@ -537,6 +560,7 @@ function addNewTopic(create) {
 	}
 	createdIds[currentId] = curName;
 	basicDataBase[curName] = progress;
+	hasStar[curName] = staring;
 
 	uploadPage.style.display = "none";
 	menuPage.style.display = "block";
@@ -644,6 +668,19 @@ exportProgressFile.addEventListener("click", function() {
     link.click();
 
     URL.revokeObjectURL(url);
+});
+
+WithStar.addEventListener("click", function() {
+	hasStar[curTopicName] = hasStar[curTopicName] || {};
+	const on = curRandom[curOQT][onIndex]["question"];
+
+	if (hasStar[curTopicName][on] == true) {
+		hasStar[curTopicName][on] = false;
+		WithStar.innerHTML = `<i class="fa-regular fa-star"></i>`;
+	} else {
+		hasStar[curTopicName][on] = true;
+		WithStar.innerHTML = `<i class="fa-solid fa-star"></i>`;
+	}
 });
 
 importProgressFile.addEventListener("click", function() {
@@ -758,7 +795,7 @@ function loadAZipFile(file, create) {
 
 		console.log("game id;", gameId);
 
-		const savedProgress = await loadProgress(gameId)
+		const savedProgress = await loadProgress(gameId);
 
 		if (savedProgress) {
 			if (!create) {
@@ -770,6 +807,14 @@ function loadAZipFile(file, create) {
 		} else {
    			console.log("No previous progress.");
    			progress = undefined;
+   		}
+
+   		const savedStars = await loadStars(gameId);
+
+   		if (savedStars) {
+   			staring = savedStars.stars
+   		} else {
+   			staring = undefined;
    		}
 
 		zip.forEach(function (relativePath, zipEntry) {
@@ -948,7 +993,7 @@ function shuffleAnswersInsideQuestions(questions) {
 
 const dbPromise = new Promise((resolve, reject) => {
 
-	const request = indexedDB.open("QuizApp", 3);
+	const request = indexedDB.open("QuizApp", 4);
 
 	request.onupgradeneeded = (event) => {
 		const db = event.target.result;
@@ -957,6 +1002,12 @@ const dbPromise = new Promise((resolve, reject) => {
 			db.createObjectStore("progress", {
                 keyPath: "gameId"
             });
+		}
+
+		if (!db.objectStoreNames.contains("StarS")) {
+			db.createObjectStore("StarS", {
+				keyPath:"fileId"
+			});
 		}
 
 		if (!db.objectStoreNames.contains("DarkMode")) {
@@ -1044,6 +1095,34 @@ async function saveProgress(gameId, progress) {
 	});
 }
 
+async function saveStars(fileId, stars) {
+	const db = await dbPromise;
+
+	return new Promise((resolve, reject) => {
+        const transaction = db.transaction("StarS","readwrite");
+        const store = transaction.objectStore("StarS");
+
+        store.put({
+        	fileId: fileId,
+        	stars
+        })
+
+        transaction.oncomplete = () => {
+            console.log("starts saved:", fileId);
+            resolve();
+        };
+
+        transaction.onerror = () => {
+            console.error(
+                "Could not save starts:",
+                transaction.error
+            );
+
+            reject(transaction.error);
+        };	
+	});
+}
+
 async function saveZipFile(file, zipId) {
 	const db = await dbPromise;
 
@@ -1125,6 +1204,33 @@ async function loadProgress(gameId) {
 	});
 }
 
+async function loadStars(fileId) {
+	const db = await dbPromise;
+
+	return new Promise((resolve, reject) => {
+  		const transaction = db.transaction("StarS", "readonly");
+  		const store = transaction.objectStore("StarS");
+
+  		const request = store.get(fileId);
+
+        request.onsuccess = () => {
+
+            // No progress yet
+            if (!request.result) {
+                resolve(null);
+                return;
+            }
+
+            // Existing progress
+            resolve(request.result);
+        };
+
+        request.onerror = () => {
+            reject(request.error);
+        };
+	});
+}
+
 async function loadZipFiles() {
 	const db = await dbPromise;
 
@@ -1143,6 +1249,31 @@ async function loadZipFiles() {
 	});
 }
 
+async function deleteStars(fileId) {
+
+    const db = await dbPromise;
+
+    return new Promise((resolve, reject) => {
+
+        const transaction = db.transaction("StarS", "readwrite");
+
+        const store = transaction.objectStore("StarS");
+
+        store.delete(fileId);
+
+        transaction.oncomplete = () => {
+            console.log("Progress deleted:", fileId);
+            resolve();
+        };
+
+        transaction.onerror = () => {
+        	alert("Odstranění selhalo!");
+            reject(transaction.error);
+        };
+    });
+
+}
+
 async function deleteProgress(gameId) {
 
     const db = await dbPromise;
@@ -1157,6 +1288,7 @@ async function deleteProgress(gameId) {
 
         transaction.oncomplete = () => {
             console.log("Progress deleted:", gameId);
+            deleteStars(gameId);
             resolve();
         };
 
