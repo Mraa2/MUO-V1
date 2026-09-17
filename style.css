@@ -22,7 +22,7 @@ html, body {
 }
 
 body {
-    padding-bottom: env(safe-area-inset-bottom);
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
     background-color: var(--background);
     font-family: Arial;
 }
