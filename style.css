@@ -445,6 +445,7 @@ p {
 
 #confirmationBox {
     background: white;
+    color: black;
     border: 2px solid blue;
     padding: 30px;
     border-radius: 10px;
@@ -573,8 +574,26 @@ p {
     top: 2vh;
     left: 90vw;
 
-    width: 3vw;
-    height: 3vw;
+    width: 3vh;
+    height: 3vh;
+
+    font-size: 3vh;
+    display: block;
+
+    background: transparent;
+    border: none;
+    outline: none;
+    cursor: pointer;
+}
+
+#WithStar {
+    background-color: transparent;
+    position: fixed;
+    top: 2vh;
+    left: 80vw;
+
+    width: 3vh;
+    height: 3vh;
 
     font-size: 3vh;
     display: block;
