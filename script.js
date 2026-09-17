@@ -44,6 +44,7 @@ const imageTable = {};
 let tablesCreated = false;
 
 let currentId;
+let createdFile;
 const createdIds = {};
 let progress;
 
@@ -517,7 +518,7 @@ function updateTopicsInMenu(){
 
 let checkIsGreen = false;
 
-function addNewTopic() {
+function addNewTopic(create) {
 	fileInput.value = "";
 
 	topics[curName] = structuredClone(dataTable);
@@ -531,6 +532,9 @@ function addNewTopic() {
 
 	checkButton.innerHTML = `<i class="fa-regular fa-circle-check" id="hablahabla" style="color: red;"></i>`
 
+	if (!create) {
+		saveZipFile(createdFile, currentId);
+	}
 	createdIds[currentId] = curName;
 	basicDataBase[curName] = progress;
 
@@ -572,6 +576,7 @@ deleteTopicus.addEventListener("click", function() {
 
 		for (const kez in createdIds) {
 			if (createdIds[kez] == curTopicName) {
+				deleteZip(kez);
 				delete createdIds[kez];
 			}
 		}
@@ -728,7 +733,7 @@ async function getFileKey(file) {
 function loadAZipFile(file, create) {
 	JSZip.loadAsync(file)
 		.then( async function(zip) {
-			console.log("Zip loaded successfully")
+			/*console.log("Zip loaded successfully")*/
 
 			const promises = [];
 
@@ -756,8 +761,10 @@ function loadAZipFile(file, create) {
 		const savedProgress = await loadProgress(gameId)
 
 		if (savedProgress) {
-    		alert("Byly nalezeny stávající statistiky!");
-    		delete savedProgress.gameId
+			if (!create) {
+				alert("Byly nalezeny stávající statistiky!");
+			}
+    		delete savedProgress.gameId;
     		progress = savedProgress;
 
 		} else {
@@ -798,9 +805,11 @@ function loadAZipFile(file, create) {
      		console.log("ALL PROMISES FINISHED");
 			tablesCreated = true;
 			currentId = gameId;
+			createdFile = file;
 			isCheckAvailable();
 			if (create) {
-				console.log(checkIsGreen)
+				isCheckAvailable();
+				addNewTopic(create);
 			}
      	} else {
      		alert("Otázky nebyly nalezeny, nebo jsou ve špatném formátu");
@@ -939,7 +948,7 @@ function shuffleAnswersInsideQuestions(questions) {
 
 const dbPromise = new Promise((resolve, reject) => {
 
-	const request = indexedDB.open("QuizApp", 2);
+	const request = indexedDB.open("QuizApp", 3);
 
 	request.onupgradeneeded = (event) => {
 		const db = event.target.result;
@@ -955,12 +964,18 @@ const dbPromise = new Promise((resolve, reject) => {
 				keyPath: "darkModeKey"
 			});
 		}
+
+		if (!db.objectStoreNames.contains("ZipFiles")) {
+			db.createObjectStore("ZipFiles", {
+				keyPath: "zipId"
+			})
+		}
 	};
 
 	request.onsuccess = (event) => {
 		const db = event.target.result;
 
-		console.log("IndexedDB ready");
+		/*console.log("IndexedDB ready");*/
 
 		resolve(db);
 	};
@@ -1029,9 +1044,38 @@ async function saveProgress(gameId, progress) {
 	});
 }
 
+async function saveZipFile(file, zipId) {
+	const db = await dbPromise;
+
+	return new Promise((resolve, reject) => {
+        const transaction = db.transaction("ZipFiles","readwrite");
+        const store = transaction.objectStore("ZipFiles");
+
+        store.put({
+        	zipId: zipId,
+        	file: file,
+        	curName,
+        })
+
+        transaction.oncomplete = () => {
+            console.log(".zip saved:", zipId);
+            resolve();
+        };
+
+        transaction.onerror = () => {
+            console.error(
+                "Could not save .zip:",
+                transaction.error
+            );
+
+            reject(transaction.error);
+        };	
+	});
+}
+
 async function loadDarkMode() {
 	const db = await dbPromise;
-	console.log(db)
+	/*console.log(db)*/
 
 	return new Promise((resolve, reject) => {
 		const transaction = db.transaction("DarkMode", "readonly");
@@ -1059,7 +1103,6 @@ async function loadProgress(gameId) {
 
 	return new Promise((resolve, reject) => {
   		const transaction = db.transaction("progress", "readonly");
-
   		const store = transaction.objectStore("progress");
 
   		const request = store.get(gameId);
@@ -1079,6 +1122,24 @@ async function loadProgress(gameId) {
         request.onerror = () => {
             reject(request.error);
         };
+	});
+}
+
+async function loadZipFiles() {
+	const db = await dbPromise;
+
+	return new Promise((resolve, reject) => {
+        const transaction = db.transaction("ZipFiles","readonly");
+        const store = transaction.objectStore("ZipFiles");
+
+        const request = store.getAll();
+
+        request.onsuccess = () => {
+        	resolve(request.result);
+        }
+        request.onerror = () => {
+        	reject(request.error);
+        }
 	});
 }
 
@@ -1103,6 +1164,23 @@ async function deleteProgress(gameId) {
         	alert("Odstranění selhalo!");
             reject(transaction.error);
         };
+    });
+}
+
+async function deleteZip(zipId) {
+    const db = await dbPromise;
+
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction("ZipFiles", "readwrite");
+        const store = transaction.objectStore("ZipFiles");
+
+        const request = store.delete(zipId);
+
+        request.onsuccess = () => {
+        	console.log("zip file deleted:", zipId);
+        	resolve();
+        }
+        request.onerror = () => reject(request.error);
     });
 }
 
@@ -1150,6 +1228,16 @@ async function loadDarkModeFromDB() {
 	}
 }
 
+async function loadAllZipsAtStart() {
+	const zips = await loadZipFiles();
+
+	for (const zip of zips) {
+		console.log("zip file loaded:", zip.zipId);
+		curName = zip.curName;
+		loadAZipFile(zip.file, true);
+	}
+}
+
 function setDarkMode() {
 	if (darkModeSet) {
 		document.documentElement.classList.toggle("dark");
@@ -1161,4 +1249,5 @@ function setDarkMode() {
 	saveDarkMode();
 }
 
-loadDarkModeFromDB()
+loadDarkModeFromDB();
+loadAllZipsAtStart();
