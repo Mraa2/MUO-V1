@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+
+    <title>My Data App</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <script src="https://kit.fontawesome.com/f825250433.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+
+    <div id ="menu">
+        <h1>Menu</h1>
+
+        <div class ="middle">
+            <button type ="button" id ="addNewIcon" class ="iconButton">
+                <i class="fa-solid fa-folder-plus" id ="addSmthing"></i>
+            </button>
+        </div>
+
+        <div id ="output" class="middle"></div>
+       
+    </div>
+
+    <div id ="upload">
+
+        <h1>Vyber soubor:</h1>
+
+        <button type="button" class = "iconGetBack" id="getBackUpload">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+
+        <div class ="withoutBox">
+            <div id = "nameTag">Jméno témata</div>
+            <input id = "textInput" class="fillerBox" maxlength="12">
+        </div>
+
+        <div class="withoutBox2">
+            <input type="file" id = "fileInput" class="fileBox">
+
+            <button type="button" id="fileOverlay" class="iconButton">
+                <i class="fa-solid fa-box-archive" id ="addFileButton"></i>
+            </button>
+        </div>
+
+        <div class ="left">
+            <button type ="button" id ="check" class ="iconButton">
+                <i class="fa-regular fa-circle-check" id="hablahabla"></i>
+            </button>
+        </div>
+    </div>
+
+    <div id ="fileLooker">
+        <h1 id="TestingName">Testing</h1>
+
+        <button type="button" class = "iconGetBack" id="getBackFileLooker">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+
+        <div id="lookTroughAll"></div>
+
+        <div id="statsBar">
+            <div id="showcaseBar"></div>
+
+            <div id="greenDIV">
+                <div id="greenDIVUNDER"></div>umím
+            </div>
+            <div id="orangeDIV">
+                <div id="orangeDIVUNDER"></div>nejistý
+            </div>
+            <div id="redDIV">
+                <div id="redDIVUNDER"></div>neumím
+            </div>
+            <div id="lightgrayDIV">
+                <div id="lightgrayDIVUNDER"></div>neznám
+            </div>
+
+            <button type="button" id="exportProgressFile">
+                <div class="insideProgressWhatever">
+                    Export statistik
+                </div>
+                <i class="fa-solid fa-file-export changeProgressIcons"></i>
+            </button>
+
+            <button type="button" id="importProgressFile">
+                <div class="insideProgressWhatever">
+                    Import statistik
+                </div>
+                <i class="fa-solid fa-file-import changeProgressIcons"></i>
+                <input type="file" id="importProgressInput" hidden>              
+            </button>
+
+            <button type="button"id="deleteProgress">
+                <div class="insideProgressWhatever">
+                    Odstranit statistiky
+                </div>
+                <i class="fa-solid fa-delete-left changeProgressIcons"></i>
+            </button>
+
+            <button type="button"id="deleteTopicus">
+                <div class="insideProgressWhatever">
+                Odstranit téma
+                </div>
+                <i class="fa-solid fa-trash-can changeProgressIcons"></i>
+            </button>        
+        </div>
+
+
+    </div>
+
+    <div id = "questionPage">
+        <button type="button" class = "iconGetBack" id="getBackToAll">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+
+        <button type ="button" class ="iconGetNext" id="goToNextQu">
+            <i class="fa-solid fa-chevron-right"></i>
+        </button>
+
+        <button type="button" class ="iconGetBack2" id="goToLastQu">
+            <i class="fa-solid fa-chevron-left"></i>
+        </button>
+
+        <div id="questionFrame">
+           <div id="questionHead" class="questionHeadClass"></div>
+           <div id="imageFrame"></div>
+        </div>
+
+        <div id="answersTable"></div>
+    </div>
+
+    <button type="button" id="darkMode">
+        
+    </button>
+
+    <div id="confirmationOverlay">
+        <div id="confirmationBox">
+        </div>
+    </div>
+
+    <script src="papaparse.min.js"></script>
+    <script src="jszip.min.js"></script>
+    <script src = "script.js"></script>
+    <script src = "css-setup.js"></script>
+
+</body>
+</html>

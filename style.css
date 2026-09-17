@@ -1,0 +1,606 @@
+:root {
+  --background: #F8FAFC;
+  --divBackground: #FFFFFF;
+  --baseButtons: #FFFFFF;
+  --headLine: #4F46E5;
+  --text: #0F172A;
+}
+
+:root.dark {
+  --background: #121824;
+  --divBackground: #1E2638;
+  --headLine: #6366F1;
+  --baseButtons: #1E2638;
+  --text: #F0F4F8;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+body {
+    background-color: var(--background);
+    font-family: Arial;
+}
+
+button {
+    background-color: var(--baseButtons);
+    border-width: calc(0.2vh + 0.1vw);
+    color: var(--text);
+}
+
+div {
+    background-color: var(--divBackground);
+    color: var(--text);
+}
+
+h1 {
+    background-color: transparent;
+    color: var(--headLine);
+    text-align: center;
+
+    font-size: 4vh;
+}
+
+h2{
+    background-color: transparent;
+    color: var(--text);
+    padding-top: 0.8vh;
+    color: black;
+    text-align: center;
+}
+
+p {
+    color: var(--text);
+    background-color: transparent;
+    text-align: center;
+}
+
+#output {
+    text-align: center;
+}
+
+.withoutBox{
+    background-color: transparent;
+    position: fixed;
+
+    top: 20vh;
+    left: 20vw;
+
+    width: 60vw;
+    height: 20vh;
+
+    text-align: center;
+    margin: auto;
+
+    font-size: 2vh;
+}
+
+.withoutBox2{
+    background-color: transparent;
+    position: fixed;
+
+    top: 40vh;
+    left: 20vw;
+
+    width: 60vw;
+    height: 20vh;
+
+    text-align: center;
+    margin: auto;
+}
+
+.fillerBox{
+    background-color: var(--divBackground);
+    color: var(--text);
+    width: 50vw;
+    height: 10vh;
+    font-size: 2vh;
+}
+
+.fileBox {
+    background-color: transparent;
+    display: none;
+}
+
+.box {
+    background-color: red;
+    width: 200px;
+    border: 5px solid black;
+    padding: 20px;
+    margin: auto;
+    margin-top: 50px;
+    text-align: center;
+}
+
+.middle {
+    background-color: transparent;
+    text-align: center;
+}
+
+.left {
+    background-color: var(--background);
+    text-align: left;
+}
+
+.iconButton {
+    background-color: transparent;
+    border: none;
+    outline: none;
+    padding: 0px;
+    cursor: pointer;
+}
+
+.iconGetBack{
+    background-color: transparent;
+    position: fixed;
+    top: 2vh;
+    left: 2vw;
+
+    width: 3vw;
+    height: 3vw;
+
+    font-size: 3vh;
+    display: block;
+
+    background: transparent;
+    border: none;
+    outline: none;
+    cursor: pointer;
+}
+
+#nameTag{
+    background-color: transparent;
+    font-size: 2vh;
+}
+
+#addSmthing{
+    position: fixed;
+
+    top: 85vh;
+    left: 75vw;
+
+    width: 10vw;
+    height: 10vh;
+}
+
+#addNewIcon svg {
+    font-size: 40px;
+}
+
+#check svg {
+    font-size: 20px;
+}
+
+#addFileButton {
+    position: fixed;
+
+    top: 45vh;
+    left: 45vw;
+
+    width: 10vw;
+    height: 10vh;
+}
+
+#hablahabla {
+    position: fixed;
+    top: 85vh;
+    left: 75vw;
+
+    width: 10vw;
+    height: 10vh;
+
+    color: red;
+}
+
+.questionHeadClass {
+    background-color: transparent;
+    font-size: 5vh;
+}
+
+.iconGetNext {
+    position: absolute;
+
+    top: 95vh;
+    left: 85vw;
+
+    transform: translateX(var(--move-offset, 0vw));
+  
+    transition: transform 0.1s ease-out;
+
+    width: 3vw;
+    height: 3vw;
+
+    font-size: 3vh;
+    display: block;
+
+    background: transparent;
+    border: none;
+    outline: none;
+    cursor: pointer;
+}
+
+.iconGetBack2 {
+    position: fixed;
+    top: 95vh;
+    left: 12vw;
+
+    width: 3vw;
+    height: 3vw;
+
+    font-size: 3vh;
+    display: block;
+
+    background: transparent;
+    border: none;
+    outline: none;
+    cursor: pointer;
+}
+
+.button01 {
+    width: 25vw;
+    font-size: 5vw;
+    margin: 0 auto;
+    margin-top: 1vh;
+    border-radius: 1vh;
+    display: block;
+    
+    position: relative;
+}
+
+.changeProgressIcons {
+    background-color: transparent;
+    color: black;
+    position: absolute;
+    top: 50%;
+    right: 5%;
+    transform: translateY(-50%);
+}
+
+.insideProgressWhatever {
+    background-color: transparent;
+    color: black;
+    position: absolute;
+    top: 50%;
+    left: 5%;
+    width: 75%;
+    height: 100%;
+    transform: translateY(-50%);
+
+    display: flex;
+    align-items: center;
+}
+
+.iconInsideLookin {
+    position: absolute;
+    left: 5%;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1em;
+}
+
+.textInsideLookin {
+    text-align: left;
+    margin-left: 10vw;
+    font-size: 5vw;
+}
+
+.buttonYes {
+    width: 30vw;
+    font-size: 5vh;
+}
+
+.buttonNo {
+    width: 30vw;
+    font-size: 5vh;
+}
+
+#questionFrame {
+    background-color: transparent;
+    position: fixed;
+
+    /* Position */
+    top: 6vh;
+    left: 10vw;
+
+    /* Size */
+    width: 80vw;
+    height: 44vh;
+
+    display: flex; 
+    flex-direction: column; 
+    overflow: hidden;
+} 
+
+/* Question */
+#questionHead {
+    background-color: transparent; 
+    flex: 0 1 auto; 
+    width: 100%; 
+
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+
+    box-sizing: border-box; 
+    padding: 1vh 2vw; 
+
+    text-align: center; 
+} 
+
+/* Image */
+#imageFrame {
+    background-color: transparent;
+    flex: 1 1 0;
+    width: 100%;
+    min-height: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+#imageFrame img { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: contain; 
+    display: block;
+} 
+
+/* No image */
+#questionFrame.no-image #questionHead { 
+    flex: 1 1 0; 
+    width: 100%; 
+    height: 100%; 
+} 
+
+#questionFrame.no-image #imageFrame { 
+    display: none; 
+}
+
+#answersTable {
+    background-color: transparent;
+    position: fixed;
+    top: 51vh;
+    left: 15vw;
+    width: 70vw;
+    height: 38vh;
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+   /* grid: 0.2vw;*/
+    gap: 1.2vh
+}
+
+#answersTable * {
+    border-radius: 1.2vh;
+    box-sizing: border-box;
+}
+
+#exportProgressFile {
+    text-align: left;
+    font-size: 1.8vh;
+    background-color: yellow;
+    position: fixed;
+    top: 90vh;
+    left: 2vw;
+
+    width: 22.5vw;
+    height: 5vh;
+}
+
+#importProgressFile {
+    text-align: left;
+    font-size: 1.8vh;
+    background-color: orange;
+    position: fixed;
+    top: 90vh;
+    left: 26.5vw;
+
+    width: 22.5vw;
+    height: 5vh;
+}
+
+#deleteProgress {
+    text-align: left;
+    font-size: 1.8vh;
+    background-color: red;
+    position: fixed;
+    top: 90vh;
+    left: 51vw;
+
+    width: 22.5vw;
+    height: 5vh;
+}
+
+#deleteTopicus {
+    text-align: left;
+    font-size: 1.8vh;
+    background-color: blue;
+    position: fixed;
+    top: 90vh;
+    left: 75.5vw;
+
+    width: 22.5vw;
+    height: 5vh;    
+}
+
+#confirmationOverlay {
+    position: fixed;
+    inset: 0;
+
+    background: rgba(0, 0, 0, 0.6);
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    z-index: 1000;
+}
+
+#confirmationBox {
+    background: white;
+    border: 2px solid blue;
+    padding: 30px;
+    border-radius: 10px;
+
+    text-align: center;
+
+    z-index: 1001;
+}
+
+#statsBar {
+    background-color: var(--divBackground);
+    position: fixed;
+    top: 70vh;
+    left: -10vw;
+    height: 50vh;
+    width: 120vw;
+
+    border: 0.2vh solid var(--text);
+}
+
+#showcaseBar {
+    background-color: black;
+    position: fixed;
+    top: 73vh;
+    left: 10vw;
+    height: 3vh;
+    width: 80vw;
+}
+
+#greenDIV {
+    background-color: transparent;
+    position: fixed;
+    top: 78vh;
+    left: 16vw;
+    height: 2vh;
+    width: 10vw;
+    font-size: 1.5vh;
+    display: flex;
+    align-items: center;
+}
+
+#greenDIVUNDER {
+    background-color: green;
+    position: fixed;
+    top: 78vh;
+    left: 12vw;
+    height: 1.6vh;
+    width: 1.6vh;
+
+    border-radius: 0.8vh;
+}
+
+#orangeDIV {
+    background-color: transparent;
+    position: fixed;
+    top: 78vh;
+    left: 36vw;
+    height: 2vh;
+    width: 10vw;
+    font-size: 1.5vh;
+    display: flex;
+    align-items: center;
+}
+
+#orangeDIVUNDER {
+    background-color: orange;
+    position: fixed;
+    top: 78vh;
+    left: 32vw;
+    height: 1.6vh;
+    width: 1.6vh;
+    border-radius: 0.8vh;
+}
+
+#redDIV {
+    background-color: transparent;
+    position: fixed;
+    top: 78vh;
+    left: 56vw;
+    height: 2vh;
+    width: 10vw;
+    font-size: 1.5vh;
+    display: flex;
+    align-items: center;
+}
+
+#redDIVUNDER {
+    background-color: red;
+    position: fixed;
+    top: 78vh;
+    left: 52vw;
+    height: 1.6vh;
+    width: 1.6vh;
+    border-radius: 0.8vh;
+}
+
+#lightgrayDIV {
+    background-color: transparent;
+    position: fixed;
+    top: 78vh;
+    left: 76vw;
+    height: 2vh;
+    width: 10vw;
+    font-size: 1.5vh;
+    display: flex;
+    align-items: center;
+}
+
+#lightgrayDIVUNDER {
+    background-color: lightgray;
+    position: fixed;
+    top: 78vh;
+    left: 72vw;
+    height: 1.6vh;
+    width: 1.6vh;
+    border-radius: 0.8vh;
+}
+
+#lookTroughAll {
+    background-color: transparent;
+}
+
+#darkMode {
+    background-color: transparent;
+    position: fixed;
+    top: 2vh;
+    left: 90vw;
+
+    width: 3vw;
+    height: 3vw;
+
+    font-size: 3vh;
+    display: block;
+
+    background: transparent;
+    border: none;
+    outline: none;
+    cursor: pointer;
+}
+
+#menu {
+    background-color: transparent;
+    display: block;
+}
+
+#upload {
+    background-color: transparent;
+    display: none;
+}
+
+#fileLooker {
+    background-color: transparent;
+    display: none;
+}
+
+#questionPage {
+    background-color: transparent;
+    display: none;
+}
