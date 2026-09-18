@@ -162,7 +162,7 @@
     <script type="text/javascript">
         if("serviceWorker" in navigator) {
             navigator.serviceWorker.register("/MUO-V1/service-worker.js")
-            .then(() =>console.log("serviceWorker not registered"))
+            .then(() =>console.log("serviceWorker registered"))
             .catch((error)=>console.log("serviceWorker failed", error));
         }
     </script>
