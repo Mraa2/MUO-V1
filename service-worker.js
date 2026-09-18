@@ -1,7 +1,7 @@
 self.addEventListener("install",(event)=>{
 	event.waitUntil(
 		caches.open("pwa-cache").then((cache)=>{
-			return cache.addAll([
+			return caches.addAll([
 				"/",
 				"/index.html",
 				"/style.css",
