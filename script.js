@@ -402,48 +402,57 @@ function openAUkNsWR() {
 	updateSlider();
 	questLast.style.opacity = 0.2;
 	questNext.style.opacity = 1;
+
+	if (currentMax == 1) {
+		questLast.style.opacity = 0.2;
+		questNext.style.opacity = 0.2;
+	}
 }
 
 function updatePageAll(count){
 	const on = curRandom[curOQT][onIndex + count];
-	questNext.style.opacity = 1;
-	questLast.style.opacity = 1;
 
 	const onPlus = curRandom[curOQT][onIndex + count + 1];
 	const onMinus = curRandom[curOQT][onIndex + count - 1];
 	if (on) {
+		questNext.style.opacity = 1;
+		questLast.style.opacity = 1;
 		onIndex = onIndex + count;
 		createQuestionButtons(on);
 		updateSlider();
+
+		if (!onPlus) {
+			questNext.style.opacity = 0.2;
+		}
+		if (!onMinus) {
+			questLast.style.opacity = 0.2;
+		}
 	}
 
-	if (!onPlus) {
-		questNext.style.opacity = 0.2;
-	}
-	if (!onMinus) {
-		questLast.style.opacity = 0.2;
-	}
+	
 }
 
 function updatePageByIndex(Index){
 	const on = curRandom[curOQT][Index];
-	questNext.style.opacity = 1;
-	questLast.style.opacity = 1;
 
 	const onPlus = curRandom[curOQT][Index + 1];
 	const onMinus = curRandom[curOQT][Index - 1];
 	if (on) {
+		questNext.style.opacity = 1;
+		questLast.style.opacity = 1;
 		onIndex = Index;
 		createQuestionButtons(on);
 		updateSlider();
+
+		if (!onPlus) {
+			questNext.style.opacity = 0.2;
+		}
+		if (!onMinus) {
+			questLast.style.opacity = 0.2;
+		}
 	}
 
-	if (!onPlus) {
-		questNext.style.opacity = 0.2;
-	}
-	if (!onMinus) {
-		questLast.style.opacity = 0.2;
-	}
+	
 }
 
 function updateSlider() {
