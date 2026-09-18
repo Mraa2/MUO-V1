@@ -1,15 +1,15 @@
 const CACHE_NAME = 'v1_static_cache';
 const ASSETS_TO_CACHE = [
-  '/MUO-V1/',
-  '/index.html',
-  '/style.css',
-  '/css-setup.js',     // Pokud má příponu .js (podle ikony editoru)
-  '/script.js',        // Váš hlavní skript
-  '/jszip.min.js',     // Externí knihovna pro práci se ZIP soubory
-  '/papaparse.min.js', // Externí knihovna pro parsování CSV
-  '/manifest.json',    // Manifest pro PWA aplikaci
-  '/favicon.ico',      // Ikona webu (případně .png/.svg podle vašeho souboru)
-  '/icon-192.png'      // Ikona pro instalaci PWA (případně .jpg podle formátu)
+    '/MUO-V1/',
+    '/MUO-V1/index.html',
+    '/MUO-V1/style.css',
+    '/MUO-V1/css-setup.js',
+    '/MUO-V1/script.js',
+    '/MUO-V1/jszip.min.js',
+    '/MUO-V1/papaparse.min.js',
+    '/MUO-V1/manifest.json',
+    '/MUO-V1/favicon.ico',
+    '/MUO-V1/icon-192.png'
 ];
 
 self.addEventListener('install', event => {
