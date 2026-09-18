@@ -400,25 +400,49 @@ function openAUkNsWR() {
 	const on = curRandom[curOQT][onIndex];
 	createQuestionButtons(on);
 	updateSlider();
+	questLast.style.opacity = 0.2;
+	questNext.style.opacity = 1;
 }
 
 function updatePageAll(count){
 	const on = curRandom[curOQT][onIndex + count];
+	questNext.style.opacity = 1;
+	questLast.style.opacity = 1;
 
+	const onPlus = curRandom[curOQT][onIndex + count + 1];
+	const onMinus = curRandom[curOQT][onIndex + count - 1];
 	if (on) {
 		onIndex = onIndex + count;
 		createQuestionButtons(on);
 		updateSlider();
 	}
+
+	if (!onPlus) {
+		questNext.style.opacity = 0.2;
+	}
+	if (!onMinus) {
+		questLast.style.opacity = 0.2;
+	}
 }
 
 function updatePageByIndex(Index){
 	const on = curRandom[curOQT][Index];
+	questNext.style.opacity = 1;
+	questLast.style.opacity = 1;
 
+	const onPlus = curRandom[curOQT][Index + 1];
+	const onMinus = curRandom[curOQT][Index - 1];
 	if (on) {
 		onIndex = Index;
 		createQuestionButtons(on);
 		updateSlider();
+	}
+
+	if (!onPlus) {
+		questNext.style.opacity = 0.2;
+	}
+	if (!onMinus) {
+		questLast.style.opacity = 0.2;
 	}
 }
 
