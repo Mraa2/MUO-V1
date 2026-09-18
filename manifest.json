@@ -1,0 +1,15 @@
+{
+	"name": "MUO",
+	"short_name": "MUO",
+	"start_url": "/",
+	"display": "standalone",
+	"background_color": "#FFFFFF",
+	"theme_color": "#000000",
+	 "icons": [
+	    {
+	      "src": "icon-192.png",
+	      "type": "image/png",
+	      "sizes": "192x192"
+	    },
+	]
+}
