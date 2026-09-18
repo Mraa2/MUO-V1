@@ -33,6 +33,9 @@ const confirmationBox = document.getElementById("confirmationBox");
 const showcaseBar = document.getElementById("showcaseBar");
 const darkModeButton = document.getElementById("darkMode");
 const WithStar = document.getElementById("WithStar");
+const numberShowcase = document.getElementById("numberShowcase");
+const slider = document.getElementById("topicsSlider");
+const sliderContainer = document.querySelector(".sliderContainer")
 
 const topics = {};
 const imagesForTopics = {};
@@ -55,6 +58,7 @@ let curName;
 let curTopicName;
 const answerButRef = {};
 let onIndex = 0;
+let currentMax = 0;
 const isCorrect = {};
 
 const curRandom = {};
@@ -234,6 +238,7 @@ function createStatBar() {
 	const perTopicBasic = basicDataBase[curTopicName];
 
 	const answerObject = {};
+	let all = 0;
 
 	if (perTopicBasic) {
 		let right = 0;
@@ -263,7 +268,7 @@ function createStatBar() {
 			}
 		}
 
-		const all = right + wrong + unsure + unanswered;
+		all = right + wrong + unsure + unanswered;
 
 		answerObject["right"] = (right/all) * 100;
 		answerObject["wrong"] = (wrong/all) * 100;
@@ -319,6 +324,9 @@ function createStatBar() {
 
 	const newString = newStringTable.join("");
 	showcaseBar.innerHTML = newString;
+
+	console.log(all)
+	numberShowcase.innerHTML = `${all} otázek`;
 }
 
 function openTopic(event){
@@ -385,11 +393,13 @@ function openAUkNsWR() {
 	questPage.style.display = "block";
 	fileLooker.style.display = "none";
 	curRandom[curOQT] = randomise(curQPC[curOQT]);
+	currentMax = curRandom[curOQT].length;
 	onIndex = 0;
 	isCorrect[curTopicName] = {};
 	answerButRef[curTopicName] = {};
 	const on = curRandom[curOQT][onIndex];
 	createQuestionButtons(on);
+	updateSlider();
 }
 
 function updatePageAll(count){
@@ -398,6 +408,28 @@ function updatePageAll(count){
 	if (on) {
 		onIndex = onIndex + count;
 		createQuestionButtons(on);
+		updateSlider();
+	}
+}
+
+function updatePageByIndex(Index){
+	const on = curRandom[curOQT][Index];
+
+	if (on) {
+		onIndex = Index;
+		createQuestionButtons(on);
+		updateSlider();
+	}
+}
+
+function updateSlider() {
+	if (currentMax !== 1) {
+		slider.min = 0;
+		slider.max = Math.max(0, currentMax - 1);
+		slider.value = onIndex;
+		sliderContainer.style.display = "flex";
+	} else {
+		sliderContainer.style.display = "none";
 	}
 }
 
@@ -502,7 +534,7 @@ function createQuestionButtons(on){
 
 			const height = 50/(buttons.length);
 
-			current.style.fontSize = `${height * 0.235}vh`;
+			current.style.fontSize = `${height * 0.2}vh`;
 
 			const everyBut = buttons.toSpliced(i, 1);
 
@@ -747,6 +779,10 @@ questNext.addEventListener("click", function(){
 
 questLast.addEventListener("click", function(){
 	updatePageAll(-1);
+});
+
+slider.addEventListener("input", () => {
+    updatePageByIndex(Number(slider.value));
 });
 
 fileOverLay.addEventListener("click", function(){

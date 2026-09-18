@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
 
-    <title>My Data App</title>
+    <title>MUO 2026/2027</title>
 
     <link rel="stylesheet" href="style.css">
 
@@ -35,7 +35,7 @@
 
         <div class ="withoutBox">
             <div id = "nameTag">Jméno témata</div>
-            <input id = "textInput" class="fillerBox" maxlength="12">
+            <input id = "textInput" class="fillerBox" maxlength="16">
         </div>
 
         <div class="withoutBox2">
@@ -63,6 +63,8 @@
         <div id="lookTroughAll"></div>
 
         <div id="statsBar">
+            <div id="numberShowcase"></div>
+
             <div id="showcaseBar"></div>
 
             <div id="greenDIV">
@@ -116,6 +118,16 @@
             <i class="fa-solid fa-arrow-left"></i>
         </button>
 
+        <div id="questionFrame">
+           <div id="questionHead" class="questionHeadClass"></div>
+           <div id="imageFrame"></div>
+        </div>
+
+        <button type="button" id="WithStar">
+        </button>
+
+        <div id="answersTable"></div>
+
         <button type ="button" class ="iconGetNext" id="goToNextQu">
             <i class="fa-solid fa-chevron-right"></i>
         </button>
@@ -124,16 +136,11 @@
             <i class="fa-solid fa-chevron-left"></i>
         </button>
 
-        <div id="questionFrame">
-           <div id="questionHead" class="questionHeadClass"></div>
-           <div id="imageFrame"></div>
+        <div class="sliderContainer">
+            <div class="sliderTrack"></div>
+
+            <input type="range" id="topicsSlider" min="0" value="0" max="50">
         </div>
-
-        <button type="button" id="WithStar">
-            <i class="fa-regular fa-star"></i>
-        </button>
-
-        <div id="answersTable"></div>
     </div>
 
     <button type="button" id="darkMode">

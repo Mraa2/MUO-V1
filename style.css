@@ -64,6 +64,10 @@ p {
 }
 
 .withoutBox{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
     background-color: transparent;
     position: fixed;
 
@@ -74,7 +78,7 @@ p {
     height: 20vh;
 
     text-align: center;
-    margin: auto;
+    margin: 0 auto;
 
     font-size: 2vh;
 }
@@ -212,7 +216,7 @@ p {
     transition: transform 0.1s ease-out;
 
     width: 3vw;
-    height: 3vw;
+    height: 3vh;
 
     font-size: 3vh;
     display: block;
@@ -229,7 +233,7 @@ p {
     left: 12vw;
 
     width: 3vw;
-    height: 3vw;
+    height: 3vh;
 
     font-size: 3vh;
     display: block;
@@ -296,6 +300,56 @@ p {
 .buttonNo {
     width: 30vw;
     font-size: 5vh;
+}
+
+.sliderContainer {
+    background-color: transparent;
+    position: relative;
+    top: 89vh;
+    left: 20vw;
+    width: 60vw;
+    flex: 1;
+    height: 3vh;
+    display: flex;
+    align-items: center;
+}
+
+.sliderTrack {
+    position: absolute;
+    left: 0;
+    right: 0;
+
+    height: 50%;
+
+    background: #0865c7;
+    border-radius: calc(0.1vh + 0.05vw);
+}
+
+#topicsSlider {
+    position: absolute;
+    width: 100%;
+    height: 0.2vh;
+
+    -webkit-appearance: none;  /* Override default CSS styles */
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+#topicsSlider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: calc(0.4vw + 0.6vh);
+  height: 4vh;
+  background: #04AA6D;
+  cursor: pointer;
+}
+
+#topicsSlider::-moz-range-thumb {
+  width: calc(0.4vw + 0.6vh);
+  height: 4vh;
+  background: #04AA6D; /* Green background */
+  cursor: pointer; /* Cursor on hover */
 }
 
 #questionFrame {
@@ -370,10 +424,9 @@ p {
     top: 50vh;
     left: 15vw;
     width: 70vw;
-    height: 37vh;
+    height: 35vh;
     display: grid;
     grid-template-columns: repeat(1, 1fr);
-   /* grid: 0.2vw;*/
     gap: 1.2vh
 }
 
@@ -467,7 +520,7 @@ p {
 #showcaseBar {
     background-color: black;
     position: fixed;
-    top: 73vh;
+    top: 74.5vh;
     left: 10vw;
     height: 3vh;
     width: 80vw;
@@ -476,7 +529,7 @@ p {
 #greenDIV {
     background-color: transparent;
     position: fixed;
-    top: 78vh;
+    top: 79.5vh;
     left: 16vw;
     height: 2vh;
     width: 10vw;
@@ -488,7 +541,7 @@ p {
 #greenDIVUNDER {
     background-color: green;
     position: fixed;
-    top: 78vh;
+    top: 79.5vh;
     left: 12vw;
     height: 1.6vh;
     width: 1.6vh;
@@ -499,7 +552,7 @@ p {
 #orangeDIV {
     background-color: transparent;
     position: fixed;
-    top: 78vh;
+    top: 79.5vh;
     left: 36vw;
     height: 2vh;
     width: 10vw;
@@ -511,7 +564,7 @@ p {
 #orangeDIVUNDER {
     background-color: orange;
     position: fixed;
-    top: 78vh;
+    top: 79.5vh;
     left: 32vw;
     height: 1.6vh;
     width: 1.6vh;
@@ -521,7 +574,7 @@ p {
 #redDIV {
     background-color: transparent;
     position: fixed;
-    top: 78vh;
+    top: 79.5vh;
     left: 56vw;
     height: 2vh;
     width: 10vw;
@@ -533,7 +586,7 @@ p {
 #redDIVUNDER {
     background-color: red;
     position: fixed;
-    top: 78vh;
+    top: 79.5vh;
     left: 52vw;
     height: 1.6vh;
     width: 1.6vh;
@@ -543,7 +596,7 @@ p {
 #lightgrayDIV {
     background-color: transparent;
     position: fixed;
-    top: 78vh;
+    top: 79.5vh;
     left: 76vw;
     height: 2vh;
     width: 10vw;
@@ -555,7 +608,7 @@ p {
 #lightgrayDIVUNDER {
     background-color: lightgray;
     position: fixed;
-    top: 78vh;
+    top: 79.5vh;
     left: 72vw;
     height: 1.6vh;
     width: 1.6vh;
@@ -600,6 +653,16 @@ p {
     border: none;
     outline: none;
     cursor: pointer;
+}
+
+#numberShowcase {
+    position: fixed;
+    top: 71vh;
+    left: 10vw;
+    height: 2vh;
+    width: 80vw;
+    font-size: 2vh;
+    text-align: center;
 }
 
 #menu {

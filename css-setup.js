@@ -8,8 +8,8 @@ const questionHeadClass = document.querySelector(".questionHeadClass");
 
 const p1 = 83;
 const p2 = 11.5;
-const wf1 = 50;
-const hf1 = 7;
+const wf1 = 60;
+const hf1 = 7.5;
 const h2 = 9;
 
 function getAspect() {
@@ -41,8 +41,8 @@ function updateArrowsRelative(){
 function updateFieldSize(){
 	const aspect = getAspect();
 
-	const sensitivity = 20;
-	const sens2 = 3.5;
+	const sensitivity = 16.5;
+	const sens2 = 2.5;
 	const sens3 = 6;
 
 	const sizing = getResize(aspect, sensitivity, true);
@@ -77,8 +77,8 @@ function updateFieldSize(){
 	iconILook.forEach(eacher => {
 		eacher.style.fontSize = `${(hf1 + siz2)*0.55}vh`;
 		eacher.style.marginRight = `${(wf1 + sizing) * 0.8}vw`;
-	})
-	
+	});
+
 	fillerBox.style.width = `${wf1 + sizing}vw`;
 	fillerBox.style.height = `${hf1 + siz2}vh`;
 	fillerBox.style.fontSize = `${(hf1 + siz2)*0.5}vh`;
