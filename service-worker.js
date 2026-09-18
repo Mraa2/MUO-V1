@@ -1,6 +1,6 @@
 const CACHE_NAME = 'v1_static_cache';
 const ASSETS_TO_CACHE = [
-  '/',
+  '/MUO-V1/',
   '/index.html',
   '/style.css',
   '/css-setup.js',     // Pokud má příponu .js (podle ikony editoru)
