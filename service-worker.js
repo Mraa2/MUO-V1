@@ -1,7 +1,7 @@
 self.addEventListener("install",(event)=>{
 	event.waitUntil(
 		caches.open("pwa-cache").then((cache)=>{
-			return caches.addAll([
+			return cache.addAll([
 				"/MUO-V1/",
 				"/index.html",
 				"/style.css",
