@@ -3,6 +3,7 @@ const iconGetBack2 = document.querySelector('.iconGetBack2');
 
 const fillerBox = document.querySelector(".fillerBox");
 const fileBox = document.querySelector(".fileBox");
+const eniszwei = document.querySelector(".eniszwei");
 
 const questionHeadClass = document.querySelector(".questionHeadClass");
 
@@ -79,9 +80,10 @@ function updateFieldSize(){
 		eacher.style.marginRight = `${(wf1 + sizing) * 0.8}vw`;
 	});
 
-	fillerBox.style.width = `${wf1 + sizing}vw`;
-	fillerBox.style.height = `${hf1 + siz2}vh`;
-	fillerBox.style.fontSize = `${(hf1 + siz2)*0.5}vh`;
+	fillerBox.style.width = `${55 + getResize(aspect, 20, true)}vw`;
+	fillerBox.style.height = `${6.5 + getResize(aspect, 3.5)}vh`;
+	fillerBox.style.fontSize = `${(6.5 + getResize(aspect, 3.5))*0.5}vh`;
+	eniszwei.style.fontSize = `${(6.5 + getResize(aspect, 2))*0.5}vh`;
 	if (aspect > 1) {
 		questionHeadClass.style.fontSize = `${h2 * 0.5}vh`;
 	} else if (aspect <= 1 && aspect >= 0.6) {

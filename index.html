@@ -37,14 +37,15 @@
 
         <div class ="withoutBox">
             <div id = "nameTag">Jméno témata</div>
-            <input id = "textInput" class="fillerBox" maxlength="16">
+            <input id = "textInput" placeholder="např. technologie" class="fillerBox" maxlength="16">
         </div>
 
         <div class="withoutBox2">
             <input type="file" id = "fileInput" class="fileBox">
 
-            <button type="button" id="fileOverlay" class="iconButton">
+            <button type="button" id="fileOverlay" class="eniszwei">
                 <i class="fa-solid fa-box-archive" id ="addFileButton"></i>
+                Přidat soubor ".zip"
             </button>
         </div>
 
@@ -162,7 +163,7 @@
     <script type="text/javascript">
         if("serviceWorker" in navigator) {
             navigator.serviceWorker.register("/MUO-V1/service-worker.js")
-            .then(() =>console.log("serviceWorker registered"))
+            .then(() =>console.log("serviceWorker not registered"))
             .catch((error)=>console.log("serviceWorker failed", error));
         }
     </script>
