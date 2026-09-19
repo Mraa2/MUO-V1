@@ -653,7 +653,7 @@ deleteTopicus.addEventListener("click", function() {
 	confirmationOverlay.style.display = "flex";
 
 	confirmationBox.innerHTML = `
-		<p style="font-size: 5vh;">Odstranit téma</p>
+		<p style="font-size: 5vh;">Odstranit téma?</p>
 		<button type="button" id="confirmOne" class="buttonYes">Ano</button>
 		<button type="button" id="cancelOne" class="buttonNo">Ne</button>
 	`;
@@ -689,7 +689,7 @@ deleteProgress123.addEventListener("click", function() {
 	confirmationOverlay.style.display = "flex";
 
 	confirmationBox.innerHTML = `
-		<p style="font-size: 5vh;">Odstranit statistiky</p>
+		<p style="font-size: 5vh;">Odstranit statistiky?</p>
 		<button type="button" id="confirmTwo" class="buttonYes">Ano</button>
 		<button type="button" id="cancelTwo" class="buttonNo">Ne</button>
 	`;
@@ -792,8 +792,23 @@ getBackUpload.addEventListener("click", function() {
 });
 
 getBackOnQuest.addEventListener("click", function(){
-	questPage.style.display = "none";
-	fileLooker.style.display = "block";
+	confirmationOverlay.style.display = "flex";
+
+	confirmationBox.innerHTML = `
+		<p style="font-size: 5vh;">Ukončit test?</p>
+		<button type="button" id="confirm3" class="buttonYes">Ano</button>
+		<button type="button" id="cancel3" class="buttonNo">Ne</button>
+	`;
+
+	document.getElementById("confirm3").onclick = function() {
+		questPage.style.display = "none";
+		fileLooker.style.display = "block";
+		confirmationOverlay.style.display = "none";
+	}
+	document.getElementById("cancel3").onclick = function() {
+		confirmationOverlay.style.display = "none";
+	}
+	
 });
 
 addButton.addEventListener("click", function(){
