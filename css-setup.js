@@ -87,6 +87,12 @@ function updateFieldSize(){
 		eacher.style.marginRight = `${(wf1 + sizing) * 0.8}vw`;
 	});
 
+	adaptSizeSecond = document.querySelectorAll(".adaptSizeSecond");
+	adaptSizeSecond.forEach(eacher => {
+		eacher.style.width = `${(hf1 + siz2)*0.55}vh`;
+		eacher.style.height = `${(hf1 + siz2)*0.55}vh`;
+	});
+
 	fillerBox.style.width = `${55 + getResize(aspect, 20, true)}vw`;
 	fillerBox.style.height = `${6.5 + getResize(aspect, 3.5)}vh`;
 	fillerBox.style.fontSize = `${(6.5 + getResize(aspect, 3.5))*0.5}vh`;
