@@ -9,7 +9,23 @@ const ASSETS_TO_CACHE = [
     '/MUO-V1/papaparse.min.js',
     '/MUO-V1/manifest.json',
     '/MUO-V1/favicon.ico',
-    '/MUO-V1/icon-192.png'
+    '/MUO-V1/icon-192.png',
+    '/MUO-V1/icons/arrow-left-solid-full.svg',
+    '/MUO-V1/icons/box-archive-solid-full.svg',
+    '/MUO-V1/icons/chevron-left-solid-full.svg',
+    '/MUO-V1/icons/chevron-right-solid-full.svg',
+    '/MUO-V1/icons/circle-check-regular-full.svg',
+    '/MUO-V1/icons/delete-left-solid-full.svg',
+    '/MUO-V1/icons/file-export-solid-full.svg',
+    '/MUO-V1/icons/file-import-solid-full.svg',
+    '/MUO-V1/icons/folder-plus-solid-full.svg',
+    '/MUO-V1/icons/moon-solid-full.svg',
+    '/MUO-V1/icons/question-solid-full.svg',
+    '/MUO-V1/icons/star-regular-full.svg',
+    '/MUO-V1/icons/star-solid-full.svg',
+    '/MUO-V1/icons/sun-solid-full.svg',
+    '/MUO-V1/icons/trash-solid-full.svg',
+    '/MUO-V1/icons/triangle-exclamation-solid-full.svg'
 ];
 
 self.addEventListener('install', event => {
