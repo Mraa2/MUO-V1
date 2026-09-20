@@ -1098,7 +1098,7 @@ const dbPromise = new Promise((resolve, reject) => {
 			});
 		}
 
-		if (!db.objectStoreNames.contains("DarkMode")) {
+		if (!db.objectStoreNames.contains("Mode")) {
 			db.createObjectStore("DarkMode", {
 				keyPath: "darkModeKey"
 			});
@@ -1466,10 +1466,10 @@ async function loadAllZipsAtStart() {
 function setDarkMode() {
 	if (darkModeSet) {
 		document.documentElement.classList.toggle("dark");
-		darkModeButton.innerHTML = `<i class="fa-solid fa-sun"></i>`
+		darkModeButton.innerHTML = `<img src="icons/sun-solid-full.svg" class="sizethree" alt=""></img>`
 	} else {
 		document.documentElement.classList.remove("dark");
-		darkModeButton.innerHTML = `<i class="fa-solid fa-moon"></i>`
+		darkModeButton.innerHTML = `<img src="icons/moon-solid-full.svg" class="sizethree" alt=""></img>`
 	}
 	saveDarkMode();
 }
