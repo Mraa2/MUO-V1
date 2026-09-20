@@ -32,6 +32,14 @@ button {
     color: var(--text);
 }
 
+img {
+  filter: brightness(0);
+}
+
+.dark img {
+  filter: brightness(0) invert(1);
+}
+
 img .sizethree {
   filter: brightness(0);
   width: 3vh;
