@@ -51,6 +51,7 @@ img {
 }
 
 .sizeoneeight {
+  filter: brightness(0);
   width: 2vh;
   height: 2vh;
 }
