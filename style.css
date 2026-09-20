@@ -40,25 +40,25 @@ img {
   filter: brightness(0) invert(1);
 }
 
-img .sizethree {
+img.sizethree {
   filter: brightness(0);
   width: 3vh;
   height: 3vh;
 }
 
-.dark img .sizethree {
+.dark img.sizethree {
   filter: brightness(0) invert(1);
   width: 3vh;
   height: 3vh;  
 }
 
-img. sizeoneeight {
+img.sizeoneeight {
   filter: brightness(0);
   width: 1.8vh;
   height: 1.8vh;
 }
 
-.dark img. sizeoneeight {
+.dark img.sizeoneeight {
   filter: brightness(0) invert(1);
   width: 1.8vh;
   height: 1.8vh;
