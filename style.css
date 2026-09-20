@@ -33,7 +33,11 @@ button {
 }
 
 img {
-  color: var(--text);
+    filter: brightness(0);
+}
+
+.dark img {
+    filter: brightness(0) invert(1);
 }
 
 div {
