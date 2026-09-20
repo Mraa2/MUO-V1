@@ -54,14 +54,14 @@ img.sizethree {
 
 img.sizeoneeight {
   filter: brightness(0);
-  width: 2.3vh;
-  height: 2.3vh;
+  width: 2vh;
+  height: 2vh;
 }
 
 .dark img.sizeoneeight {
   filter: brightness(0) invert(1);
-  width: 2.3vh;
-  height: 2.3vh;
+  width: 2vh;
+  height: 2vh;
 }
 
 div {
