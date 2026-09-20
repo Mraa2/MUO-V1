@@ -583,6 +583,7 @@ function createQuestionButtons(on){
 function updateTopicsInMenu(){
 	const stringsTable = [];
 	const nameTable = [];
+	console.log(topics);
 	for (const variable in topics){
 		stringsTable.push(`<button data-topic="${variable}"
 			class="button01";
