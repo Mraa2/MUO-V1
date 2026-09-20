@@ -40,6 +40,18 @@ img {
   filter: brightness(0) invert(1);
 }
 
+img.sizefive {
+  filter: brightness(0);
+  width: 6vh;
+  height: 6vh;
+}
+
+.dark img.sizefive {
+  filter: brightness(0) invert(1);
+  width: 6vh;
+  height: 6vh;  
+}
+
 img.sizethree {
   filter: brightness(0);
   width: 3.5vh;
