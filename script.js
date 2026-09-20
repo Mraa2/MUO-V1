@@ -1450,11 +1450,15 @@ async function loadDarkModeFromDB() {
 async function loadAllZipsAtStart() {
 	const zips = await loadZipFiles();
 
-	for (const zip of zips) {
-		console.log("zip file loaded:", zip.zipId, zip.file);
-		curName = zip.curName;
-		await loadAZipFile(zip.file, true);
-	}
+    for (const zip of zips) {
+        console.log("START ZIP:", zip.zipId);
+
+        curName = zip.curName;
+
+        await loadAZipFile(zip.file, true);
+
+        console.log("FINISHED ZIP:", zip.zipId);
+    }
 }
 
 function setDarkMode() {
