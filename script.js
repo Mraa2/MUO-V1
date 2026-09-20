@@ -1453,6 +1453,7 @@ async function loadAllZipsAtStart() {
 
     for (const zip of zips) {
         console.log("START ZIP:", zip.zipId);
+		menuPage.style.display = "none";
 
         curName = zip.curName;
 
