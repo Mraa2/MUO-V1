@@ -730,7 +730,7 @@ exportProgressFile.addEventListener("click", function() {
 
 	const link = document.createElement("a");
     link.href = url;
-    link.download = "progress.json";
+    link.download = `progress_${curTopicName}.json`;
 
     link.click();
 
