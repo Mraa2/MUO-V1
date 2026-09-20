@@ -284,20 +284,17 @@ p {
 }
 
 .button01 {
-    width: 25vw;
-    font-size: 5vw;
-    margin: 0 auto;
-    margin-top: 1vh;
-    border-radius: 1vh;
-    
-    /* Change display to flex */
+    /* Width is set by your script */
     display: flex;
-    flex-direction: row;
-    align-items: center;      /* Vertically aligns icon and text in the center */
-    justify-content: center;  /* Horizontally centers content inside the button */
-    gap: 0.5em;               /* Adds spacing between the icon and text */
-    
+    align-items: center;
     position: relative;
+    padding-left: 10%; /* Scales relative to the button's width, not the screen */
+}
+
+.button01 > img {
+    position: absolute;
+    left: 5%; /* Stays positioned within the left padding area */
+    height: 1em;
 }
 
 .changeProgressIcons {
@@ -332,9 +329,8 @@ p {
 }
 
 .textInsideLookin {
-    text-align: left;
-    margin-left: 10vw;
     font-size: 5vw;
+    text-align: left;
 }
 
 .buttonYes {
