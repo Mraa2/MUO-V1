@@ -619,7 +619,7 @@ function addNewTopic(create) {
 	tablesCreated = false;
 	checkIsGreen = false;
 
-	checkButton.innerHTML = `<img src="icons/circle-check-regular-full.svg" class="sizefive" id="hablahabla" style="color: red;" alt=""></img>`
+	checkButton.innerHTML = <img src="icons/circle-check-regular-full.svg" id="hablahabla" class="sizefive"></img>`
 
 	if (!create) {
 		console.log(createdFile, currentId);
@@ -643,11 +643,11 @@ function isCheckAvailable(){
 	if ((tablesCreated) && (curName) && (!topics[curName]) && (curName !== "")) {
 		checkIsGreen = true;
 
-		checkButton.innerHTML = `<img src="icons/circle-check-regular-full.svg" class="sizefive" id="hablahabla" style="color: green;" alt=""></img>`
+		checkButton.innerHTML = `<img src="icons/circle-check-regular-full.svg" id="hablahabla" class="sizefive"></img>`
 	} else {
 		checkIsGreen = false;
 
-		checkButton.innerHTML = `<img src="icons/circle-check-regular-full.svg" class="sizefive" id="hablahabla" style="color: red;" alt=""></img>`
+		checkButton.innerHTML = `<img src="icons/circle-check-regular-full.svg" id="hablahabla" class="sizefive"></img>`
 	}
 }
 
