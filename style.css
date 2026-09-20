@@ -292,7 +292,7 @@ p {
     
     display: block;         /* Keeps block behavior so margin: 0 auto works */
     position: relative;     /* Anchor for the absolute icon */
-    padding-left: 25%;      /* Replaces margin-left, scales with button width */
+    padding-left: 10%;      /* Replaces margin-left, scales with button width */
     box-sizing: border-box; /* Ensures padding doesn't make button wider */
 }
 
