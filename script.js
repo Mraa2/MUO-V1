@@ -856,8 +856,8 @@ async function getFileKey(file) {
 }
 
 function loadAZipFile(file, create) {
-	JSZip.loadAsync(file)
-		.then( async function(zip) {
+    try {
+        const zip = await JSZip.loadAsync(file);
 			/*console.log("Zip loaded successfully")*/
 
 			const promises = [];
@@ -948,12 +948,11 @@ function loadAZipFile(file, create) {
      		alert("Otázky nebyly nalezeny, nebo jsou ve špatném formátu");
      	}
 
-	})
-	.catch(function(err) {
+	} catch(function(err) {
     	console.error("Error reading zip:", err);
 		dataTable.length = 0;
 		Object.keys(imageTable).forEach(kez => delete imageTable[kez]);
-    });
+    }
 }
 
 fileInput.addEventListener("change",function () {
