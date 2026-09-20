@@ -40,38 +40,17 @@ img {
   filter: brightness(0) invert(1);
 }
 
-img.sizefive {
-  filter: brightness(0);
+.sizefive {
   width: 6vh;
   height: 6vh;
 }
 
-.dark img.sizefive {
-  filter: brightness(0) invert(1);
-  width: 6vh;
-  height: 6vh;  
-}
-
-img.sizethree {
-  filter: brightness(0);
+.sizethree {
   width: 3.5vh;
   height: 3.5vh;
 }
 
-.dark img.sizethree {
-  filter: brightness(0) invert(1);
-  width: 3.5vh;
-  height: 3.5vh;  
-}
-
-img.sizeoneeight {
-  filter: brightness(0);
-  width: 2vh;
-  height: 2vh;
-}
-
-.dark img.sizeoneeight {
-  filter: brightness(0) invert(1);
+.sizeoneeight {
   width: 2vh;
   height: 2vh;
 }
