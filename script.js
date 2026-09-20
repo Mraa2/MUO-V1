@@ -1451,7 +1451,7 @@ async function loadAllZipsAtStart() {
 	const zips = await loadZipFiles();
 
 	for (const zip of zips) {
-		console.log("zip file loaded:", zip.zipId);
+		console.log("zip file loaded:", zip.zipId, zip.file);
 		curName = zip.curName;
 		loadAZipFile(zip.file, true);
 	}
