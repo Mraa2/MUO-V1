@@ -621,6 +621,7 @@ function addNewTopic(create) {
 	checkButton.innerHTML = `<i class="fa-regular fa-circle-check" id="hablahabla" style="color: red;"></i>`
 
 	if (!create) {
+		console.log(createdFile, currentId);
 		saveZipFile(createdFile, currentId);
 	}
 	createdIds[currentId] = curName;
