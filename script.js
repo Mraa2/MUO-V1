@@ -239,12 +239,12 @@ function createStatBar() {
 
 	const answerObject = {};
 	let all = 0;
-
+	let unanswered = 0;
+	
 	if (perTopicBasic) {
 		let right = 0;
 		let wrong = 0;
 		let unsure = 0;
-		let unanswered = 0;
 
 		for (let i = 0; i < perTopicData.length; i++) {
 			const qData = perTopicData[i]
@@ -326,7 +326,7 @@ function createStatBar() {
 	showcaseBar.innerHTML = newString;
 
 	console.log(all)
-	numberShowcase.innerHTML = `${all} otázek`;
+	numberShowcase.innerHTML = `${all - unanswered}/${all} zodpovězených otázek`;
 }
 
 function openTopic(event){
