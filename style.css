@@ -285,16 +285,23 @@ p {
 
 .button01 {
     /* Width is set by your script */
-    display: flex;
-    align-items: center;
-    position: relative;
-    padding-left: 10%; /* Scales relative to the button's width, not the screen */
+    font-size: 5vw;
+    margin: 0 auto;         /* Restores horizontal centering on screen */
+    margin-top: 1vh;
+    border-radius: 1vh;
+    
+    display: block;         /* Keeps block behavior so margin: 0 auto works */
+    position: relative;     /* Anchor for the absolute icon */
+    padding-left: 25%;      /* Replaces margin-left, scales with button width */
+    box-sizing: border-box; /* Ensures padding doesn't make button wider */
 }
 
 .button01 > img {
     position: absolute;
-    left: 5%; /* Stays positioned within the left padding area */
-    height: 1em;
+    left: 8%;               /* Sits inside the left padding area */
+    top: 50%;
+    transform: translateY(-50%);
+    height: 1em;            /* Scales with font size */
 }
 
 .changeProgressIcons {
