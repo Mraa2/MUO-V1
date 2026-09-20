@@ -153,9 +153,9 @@ function createQuestionClasses(){
 
 	const icons = {
 		all: "",
-		unknown: `<i class="fa-solid fa-question iconInsideLookin"></i>`,
-		wrong: `<i class="fa-solid fa-triangle-exclamation iconInsideLookin"></i>`,
-		stars: `<i class="fa-solid fa-star iconInsideLookin"></i>`,
+		unknown: `<img src="icons/question-solid-full.svg" class="adaptSizeSecond" alt=""></img>`,
+		wrong: `<img src="icons/triangle-exclamation-solid-full.svg" class="adaptSizeSecond" alt=""></img>`,
+		stars: `<img src="icons/star-solid-full.svg" class="adaptSizeSecond" alt=""></img>`,
 	};
 
 	for (let i = 0; i < newArray.length; i++) {
