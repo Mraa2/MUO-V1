@@ -624,9 +624,9 @@ function addNewTopic(create) {
 		console.log(createdFile, currentId);
 		saveZipFile(createdFile, currentId);
 	}
-	createdIds[currentId] = curName;
-	basicDataBase[curName] = progress;
-	hasStar[curName] = staring;
+	createdIds[currentId] = structuredClone(curName);
+	basicDataBase[curName] = structuredClone(progress);
+	hasStar[curName] = structuredClone(staring);
 
 	uploadPage.style.display = "none";
 	menuPage.style.display = "block";
