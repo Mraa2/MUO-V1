@@ -711,11 +711,13 @@ deleteProgress123.addEventListener("click", function() {
 
 exportProgressFile.addEventListener("click", function() {
 	const currentBasicData = basicDataBase[curTopicName];
+	const currentStarData = hasStar[curTopicName];
 	const gameId = getCreatedIdFromName();
 
 	const newObject = {
 		fileId: gameId,
 		progress: currentBasicData,
+		stars: currentStarData
 	};
 
 	const jsonString = JSON.stringify(newObject, null, 2);
@@ -776,7 +778,8 @@ importProgressInput.addEventListener("change", async function() {
   		return;
   	};
 
-  	basicDataBase[curTopicName] = obj.progress
+  	basicDataBase[curTopicName] = obj.progress;
+	hasStar[curTopicName] = obj.stars;
   	fileLooker.style.display = "none";
   	fileLooker.style.display = "block";
 });
