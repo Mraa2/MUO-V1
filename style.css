@@ -42,26 +42,26 @@ img {
 
 img.sizethree {
   filter: brightness(0);
-  width: 3vh;
-  height: 3vh;
+  width: 3.5vh;
+  height: 3.5vh;
 }
 
 .dark img.sizethree {
   filter: brightness(0) invert(1);
-  width: 3vh;
-  height: 3vh;  
+  width: 3.5vh;
+  height: 3.5vh;  
 }
 
 img.sizeoneeight {
   filter: brightness(0);
-  width: 1.8vh;
-  height: 1.8vh;
+  width: 2.3vh;
+  height: 2.3vh;
 }
 
 .dark img.sizeoneeight {
   filter: brightness(0) invert(1);
-  width: 1.8vh;
-  height: 1.8vh;
+  width: 2.3vh;
+  height: 2.3vh;
 }
 
 div {
