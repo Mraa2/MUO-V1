@@ -855,7 +855,7 @@ async function getFileKey(file) {
         .join("");
 }
 
-function loadAZipFile(file, create) {
+async function loadAZipFile(file, create) {
     try {
         const zip = await JSZip.loadAsync(file);
 			/*console.log("Zip loaded successfully")*/
