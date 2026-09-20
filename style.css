@@ -289,7 +289,13 @@ p {
     margin: 0 auto;
     margin-top: 1vh;
     border-radius: 1vh;
-    display: block;
+    
+    /* Change display to flex */
+    display: flex;
+    flex-direction: row;
+    align-items: center;      /* Vertically aligns icon and text in the center */
+    justify-content: center;  /* Horizontally centers content inside the button */
+    gap: 0.5em;               /* Adds spacing between the icon and text */
     
     position: relative;
 }
