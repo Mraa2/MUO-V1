@@ -5,6 +5,7 @@ const fillerBox = document.querySelector(".fillerBox");
 const fileBox = document.querySelector(".fileBox");
 const eniszwei = document.querySelector(".eniszwei");
 
+
 const questionHeadClass = document.querySelector(".questionHeadClass");
 
 const p1 = 83;
@@ -72,6 +73,12 @@ function updateFieldSize(){
 			each.style.textAlign = "center";
 			each.style.fontSize = `${(hf1 + siz2)*0.55}vh`;
 		}
+	});
+
+	const adaptImageFirst = document.querySelectorAll(".adaptImageFirst");
+	adaptImageFirst.forEach(each => {
+		each.style.width = `${(6.5 + getResize(aspect, 2))*0.5}vh`;
+		each.style.height = `${(6.5 + getResize(aspect, 2))*0.5}vh`;
 	});
 
 	const iconILook = document.querySelectorAll(".iconInsideLookin");
