@@ -987,10 +987,15 @@ async function createDataTable(zipEntry) {
 		complete: function (result) {
 			const csvTable = result.data;
 
+			let currentTopic = "";
+
 			for (let i = 0; i < csvTable.length; i++) {
 				const rn = csvTable[i];
 
 				if (!rn) {
+					continue;
+				} else if (rn[0].includes("(topic)")) {
+					currentTopic = rn[0].split("(topic)")[1];
 					continue;
 				}
 				const arrayLength = rn.length;
@@ -1021,6 +1026,10 @@ async function createDataTable(zipEntry) {
 					} else {
 						current[k] = rn[k];
 					}
+				}
+
+				if (!skip && currentTopic !== "" && currentTopic !== undefined && currentTopic !== null)  {
+					current["topic"] = currentTopic;
 				}
 
 				if (!skip) {
