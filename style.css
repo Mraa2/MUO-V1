@@ -44,6 +44,18 @@ img {
     filter: brightness(0);
 }
 
+img.invert {
+  filter: brightness(0) invert(1);
+}
+.dark img.invert {
+  filter: brightness(0);
+}
+
+.sizeseven {
+  width: 8.5vh;
+  height: 8.5vh; 
+}
+
 .sizefive {
   width: 6vh;
   height: 6vh;
