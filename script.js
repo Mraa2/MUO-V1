@@ -38,10 +38,13 @@ const slider = document.getElementById("topicsSlider");
 const sliderContainer = document.querySelector(".sliderContainer")
 
 const topics = {};
-const imagesForTopics = {};
 
-const basicDataBase = {};
-const hasStar = {};
+const insertTable = {
+	allQuestions: undefined,
+	images: undefined,
+	progressData: undefined,
+	starsData: undefined,
+};
 
 const dataTable = [];
 const imageTable = {};
@@ -69,10 +72,10 @@ const curQPC = {};
 let curOQT;
 
 function calculateQueryState(query) {
-	basicDataBase[curTopicName] = basicDataBase[curTopicName] || {};
-	basicDataBase[curTopicName][query] = basicDataBase[curTopicName][query] || [];
+	topics[curTopicName].progressData = topics[curTopicName].progressData || {};
+	topics[curTopicName].progressData[query] = topics[curTopicName].progressData[query] || [];
 
-	const rep = basicDataBase[curTopicName][query];
+	const rep = topics[curTopicName].progressData[query];
 
 	let currentWeight = 0;
 
@@ -95,9 +98,9 @@ function calculateQueryState(query) {
 }
 
 function createQuestionClasses(){
-	const QuestionsData = topics[curTopicName];
-	const DatabaseData = basicDataBase[curTopicName] || [];
-	const StarsDataBABA = hasStar[curTopicName] || [];
+	const QuestionsData = topics[curTopicName].allQuestions;
+	const DatabaseData = topics[curTopicName].progressData || [];
+	const StarsDataBABA = topics[curTopicName].starsData || [];
 
 	curQPC["all"] = QuestionsData;
 	curQPC["unknown"] = [];
@@ -209,8 +212,8 @@ const observer = new MutationObserver(() => {
         	}
         }
 
-        saveProgress(fileIdifc, basicDataBase[curTopicName]);
-        saveStars(fileIdifc, hasStar[curTopicName])
+        saveProgress(fileIdifc, topics[curTopicName].progressData);
+        saveStars(fileIdifc, topics[curTopicName].starsData)
     }
 });
 
@@ -234,8 +237,8 @@ obs2.observe(menuPage, {
 });
 
 function createStatBar() {
-	const perTopicData = topics[curTopicName];
-	const perTopicBasic = basicDataBase[curTopicName];
+	const perTopicData = topics[curTopicName].allQuestions;
+	const perTopicBasic = topics[curTopicName].progressData;
 
 	const answerObject = {};
 	let all = 0;
@@ -383,10 +386,10 @@ function assignAnswer(event, everyBut){
 	event.target.style.backgroundColor = transfer[currentCorrect];
 	answerButRef[curTopicName][currentQ][curAns] = transfer[currentCorrect];
 
-	basicDataBase[curTopicName] = basicDataBase[curTopicName] || {};
-	basicDataBase[curTopicName][currentQ] = basicDataBase[curTopicName][currentQ] || [];
-	basicDataBase[curTopicName][currentQ].push(currentCorrect);
-	/*console.log(isCorrect, basicDataBase);*/
+	topics[curTopicName].progressData = topics[curTopicName].progressData || {};
+	topics[curTopicName].progressData[currentQ] = topics[curTopicName].progressData[currentQ] || [];
+	topics[curTopicName].progressData[currentQ].push(currentCorrect);
+	/*console.log(isCorrect);*/
 }
 
 function openAUkNsWR() {
@@ -471,10 +474,10 @@ function numberToLetter(num) {
 }
 
 function createStar() {
-	hasStar[curTopicName] = hasStar[curTopicName] || {};
+	topics[curTopicName].starsData = topics[curTopicName].starsData || {};
 	const on = curRandom[curOQT][onIndex]["question"];
 
-	if (hasStar[curTopicName][on] == true) {
+	if (topics[curTopicName].starsData[on] == true) {
 		WithStar.innerHTML = `<img src="icons/star-solid-full.svg" class="sizethree" alt=""></img>`;
 	} else {
 		WithStar.innerHTML = `<img src="icons/star-regular-full.svg" class="sizethree" alt=""></img>`;
@@ -495,7 +498,7 @@ function createQuestionButtons(on){
 
 	if (hasImage) {
 		/*console.log(hasImage)*/
-		const curURL = imagesForTopics[curTopicName][hasImage]
+		const curURL = topics[curTopicName].images[hasImage];
 		/*console.log(curURL)*/
 		if (curURL) {
     		imageFrame.innerHTML = `<img src="${curURL}" alt="">`;
@@ -612,8 +615,9 @@ let checkIsGreen = false;
 function addNewTopic(create) {
 	fileInput.value = "";
 
-	topics[curName] = structuredClone(dataTable);
-	imagesForTopics[curName] = structuredClone(imageTable);
+	topics[curName] = insertTable;
+	topics[curName].allQuestions = structuredClone(dataTable);
+	topics[curName].images = structuredClone(imageTable);
 
 	dataTable.length = 0;
 	Object.keys(imageTable).forEach(kez => delete imageTable[kez]);
@@ -628,8 +632,8 @@ function addNewTopic(create) {
 		saveZipFile(createdFile, currentId);
 	}
 	createdIds[currentId] = structuredClone(curName);
-	basicDataBase[curName] = structuredClone(progress);
-	hasStar[curName] = structuredClone(staring);
+	topics[curName].progressData = structuredClone(progress);
+	topics[curName].starsData = structuredClone(staring);
 
 	uploadPage.style.display = "none";
 	menuPage.style.display = "block";
@@ -664,8 +668,6 @@ deleteTopicus.addEventListener("click", function() {
 
 	document.getElementById("confirmOne").onclick = function() {
 		delete topics[curTopicName]
-		delete imagesForTopics[curTopicName]
-		delete basicDataBase[curTopicName]
 
 		for (const kez in createdIds) {
 			if (createdIds[kez] == curTopicName) {
@@ -681,7 +683,7 @@ deleteTopicus.addEventListener("click", function() {
 
 		confirmationOverlay.style.display = "none";
 
-		console.log(topics, imagesForTopics, basicDataBase, createdIds)
+		console.log(topics, createdIds)
 
 	}
 	document.getElementById("cancelOne").onclick = function() {
@@ -702,7 +704,7 @@ deleteProgress123.addEventListener("click", function() {
 		const idsdsfew = getCreatedIdFromName();
 
 		deleteProgress(idsdsfew)
-		delete basicDataBase[curTopicName]
+		delete topics[curTopicName].progressData
 
 		fileLooker.style.display = "none";
 		fileLooker.style.display = "block";
@@ -714,8 +716,8 @@ deleteProgress123.addEventListener("click", function() {
 });
 
 exportProgressFile.addEventListener("click", function() {
-	const currentBasicData = basicDataBase[curTopicName];
-	const currentStarData = hasStar[curTopicName];
+	const currentBasicData = topics[curTopicName].progressData;
+	const currentStarData = topics[curTopicName].starsData;
 	const gameId = getCreatedIdFromName();
 
 	const newObject = {
@@ -742,14 +744,14 @@ exportProgressFile.addEventListener("click", function() {
 });
 
 WithStar.addEventListener("click", function() {
-	hasStar[curTopicName] = hasStar[curTopicName] || {};
+	topics[curTopicName].starsData = topics[curTopicName].starsData || {};
 	const on = curRandom[curOQT][onIndex]["question"];
 
-	if (hasStar[curTopicName][on] == true) {
-		hasStar[curTopicName][on] = false;
+	if (topics[curTopicName].starsData[on] == true) {
+		topics[curTopicName].starsData[on] = false;
 		WithStar.innerHTML = `<img src="icons/star-regular-full.svg" class="sizethree" alt=""></img>`;
 	} else {
-		hasStar[curTopicName][on] = true;
+		topics[curTopicName].starsData[on] = true;
 		WithStar.innerHTML = `<img src="icons/star-solid-full.svg" class="sizethree" alt=""></img>`;
 	}
 });
@@ -782,8 +784,8 @@ importProgressInput.addEventListener("change", async function() {
   		return;
   	};
 
-  	basicDataBase[curTopicName] = obj.progress;
-	hasStar[curTopicName] = obj.stars;
+  	topics[curTopicName].progressData = obj.progress;
+	topics[curTopicName].starsData = obj.stars;
   	fileLooker.style.display = "none";
   	fileLooker.style.display = "block";
 });
