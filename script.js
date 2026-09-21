@@ -479,6 +479,7 @@ function createStar() {
 	} else {
 		WithStar.innerHTML = `<img src="icons/star-regular-full.svg" class="sizethree" alt=""></img>`;
 	}
+	console.log(WithStar.innerHTML, WithStar);
 }
 
 function createQuestionButtons(on){
