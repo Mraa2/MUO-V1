@@ -475,9 +475,9 @@ function createStar() {
 	const on = curRandom[curOQT][onIndex]["question"];
 
 	if (hasStar[curTopicName][on] == true) {
-		WithStar.innerHTML = `<img src="icons/star-solid-full.svg" class="sizethree"></img>`;
+		WithStar.innerHTML = `<img src="icons/star-solid-full.svg" class="sizethree" alt=""></img>`;
 	} else {
-		WithStar.innerHTML = `<img src="icons/star-regular-full.svg" class="sizethree"></img>`;
+		WithStar.innerHTML = `<img src="icons/star-regular-full.svg" class="sizethree" alt=""></img>`;
 	}
 }
 
