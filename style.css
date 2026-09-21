@@ -310,7 +310,7 @@ p {
 
 .button01 > img {
     position: absolute;
-    left: 6%;               /* Sits inside the left padding area */
+    left: 4%;               /* Sits inside the left padding area */
     top: 50%;
     transform: translateY(-50%);
     height: 1.5em;            /* Scales with font size */
