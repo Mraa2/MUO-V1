@@ -310,10 +310,10 @@ p {
 
 .button01 > img {
     position: absolute;
-    left: 8%;               /* Sits inside the left padding area */
+    left: 6%;               /* Sits inside the left padding area */
     top: 50%;
     transform: translateY(-50%);
-    height: 1em;            /* Scales with font size */
+    height: 1.2em;            /* Scales with font size */
 }
 
 .changeProgressIcons {
