@@ -485,7 +485,9 @@ function createQuestionButtons(on){
 	createStar();
 	const questionImage = on["question"];
 
-	const qS = questionImage.split("(imgsep)")
+	const withoutMulti = questionImage.split("(multi)")[0];
+
+	const qS = withoutMulti.split("(imgsep)");
 
 	questionHead.innerText = qS[0];
 
