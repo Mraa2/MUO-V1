@@ -39,13 +39,6 @@ const sliderContainer = document.querySelector(".sliderContainer")
 
 const topics = {};
 
-const insertTable = {
-	allQuestions: undefined,
-	images: undefined,
-	progressData: undefined,
-	starsData: undefined,
-};
-
 const dataTable = [];
 const imageTable = {};
 
@@ -615,9 +608,13 @@ let checkIsGreen = false;
 function addNewTopic(create) {
 	fileInput.value = "";
 
-	topics[curName] = insertTable;
-	topics[curName].allQuestions = structuredClone(dataTable);
-	topics[curName].images = structuredClone(imageTable);
+    topics[curName] = {
+        allQuestions: structuredClone(dataTable),
+        images: structuredClone(imageTable),
+        progressData: structuredClone(progress),
+        starsData: structuredClone(staring)
+    };
+    createdIds[currentId] = curName;
 
 	dataTable.length = 0;
 	Object.keys(imageTable).forEach(kez => delete imageTable[kez]);
@@ -631,9 +628,6 @@ function addNewTopic(create) {
 		console.log(createdFile, currentId);
 		saveZipFile(createdFile, currentId);
 	}
-	createdIds[currentId] = structuredClone(curName);
-	topics[curName].progressData = structuredClone(progress);
-	topics[curName].starsData = structuredClone(staring);
 
 	uploadPage.style.display = "none";
 	menuPage.style.display = "block";
