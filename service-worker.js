@@ -1,4 +1,5 @@
-const CACHE_NAME = 'v1_static_cache';
+const CACHE_NAME = 'v1.1_static_cache';
+
 const ASSETS_TO_CACHE = [
     '/MUO-V1/',
     '/MUO-V1/index.html',
@@ -10,6 +11,7 @@ const ASSETS_TO_CACHE = [
     '/MUO-V1/manifest.json',
     '/MUO-V1/favicon.ico',
     '/MUO-V1/icon-192.png',
+
     '/MUO-V1/icons/arrow-left-solid-full.svg',
     '/MUO-V1/icons/box-archive-solid-full.svg',
     '/MUO-V1/icons/chevron-left-solid-full.svg',
@@ -28,39 +30,84 @@ const ASSETS_TO_CACHE = [
     '/MUO-V1/icons/triangle-exclamation-solid-full.svg'
 ];
 
+
+// INSTALL
 self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('Caching');
-        return cache.addAll(ASSETS_TO_CACHE);
-      })
-      .then(() => self.skipWaiting()) // Přeskočí čekání na aktivaci
-  );
+    event.waitUntil(
+        caches.open(CACHE_NAME)
+            .then(cache => {
+                console.log('[SW] Caching app shell');
+                return cache.addAll(ASSETS_TO_CACHE);
+            })
+            .then(() => {
+                console.log('[SW] App shell cached');
+                return self.skipWaiting();
+            })
+            .catch(error => {
+                console.error('[SW] Failed to cache app shell:', error);
+                throw error;
+            })
+    );
 });
 
+
+// ACTIVATE
 self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cache => {
-          if (cache !== CACHE_NAME) {
-            console.log('Mažu starou cache:', cache);
-            return caches.delete(cache);
-          }
-        })
-      );
-    }).then(() => self.clients.claim()) // Okamžitě převezme kontrolu nad otevřenými stránkami
-  );
+    event.waitUntil(
+        caches.keys()
+            .then(cacheNames => {
+                return Promise.all(
+                    cacheNames
+                        .filter(cacheName => cacheName !== CACHE_NAME)
+                        .map(cacheName => {
+                            console.log('[SW] Deleting old cache:', cacheName);
+                            return caches.delete(cacheName);
+                        })
+                );
+            })
+            .then(() => self.clients.claim())
+    );
 });
 
-// 3. Událost 'fetch' – zachytávání síťových požadavků (načítání z cache při offline režimu)
+
+// FETCH
 self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        // Pokud je soubor v cache, vrátíme ho. Jinak se stáhne ze sítě.
-        return response || fetch(event.request);
-      })
-  );
+
+    // Only handle GET requests
+    if (event.request.method !== 'GET') {
+        return;
+    }
+
+    event.respondWith(
+        caches.match(event.request, {
+            // This makes script.js and script.js?v=1.1
+            // match the same cached file.
+            ignoreSearch: true
+        })
+        .then(cachedResponse => {
+
+            // We have it cached → use it.
+            if (cachedResponse) {
+                return cachedResponse;
+            }
+
+            // Not cached → try the network.
+            return fetch(event.request);
+        })
+        .catch(error => {
+
+            console.warn(
+                '[SW] Offline request failed:',
+                event.request.url
+            );
+
+            // If the user is opening/reloading the PWA
+            // while offline, return index.html.
+            if (event.request.mode === 'navigate') {
+                return caches.match('/MUO-V1/index.html');
+            }
+
+            throw error;
+        })
+    );
 });
