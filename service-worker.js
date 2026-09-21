@@ -35,18 +35,21 @@ const ASSETS_TO_CACHE = [
 self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(CACHE_NAME)
-            .then(cache => {
-                console.log('[SW] Caching app shell');
-                return cache.addAll(ASSETS_TO_CACHE);
+            .then(async cache => {
+
+                console.log('[SW] Installing:', CACHE_NAME);
+
+                for (const asset of ASSETS_TO_CACHE) {
+                    try {
+                        await cache.add(asset);
+                        console.log('[SW] Cached:', asset);
+                    } catch (error) {
+                        console.error('[SW] FAILED to cache:', asset, error);
+                    }
+                }
+
             })
-            .then(() => {
-                console.log('[SW] App shell cached');
-                return self.skipWaiting();
-            })
-            .catch(error => {
-                console.error('[SW] Failed to cache app shell:', error);
-                throw error;
-            })
+            .then(() => self.skipWaiting())
     );
 });
 
@@ -58,10 +61,10 @@ self.addEventListener('activate', event => {
             .then(cacheNames => {
                 return Promise.all(
                     cacheNames
-                        .filter(cacheName => cacheName !== CACHE_NAME)
-                        .map(cacheName => {
-                            console.log('[SW] Deleting old cache:', cacheName);
-                            return caches.delete(cacheName);
+                        .filter(name => name !== CACHE_NAME)
+                        .map(name => {
+                            console.log('[SW] Deleting old cache:', name);
+                            return caches.delete(name);
                         })
                 );
             })
@@ -73,25 +76,23 @@ self.addEventListener('activate', event => {
 // FETCH
 self.addEventListener('fetch', event => {
 
-    // Only handle GET requests
     if (event.request.method !== 'GET') {
         return;
     }
 
     event.respondWith(
         caches.match(event.request, {
-            // This makes script.js and script.js?v=1.1
-            // match the same cached file.
             ignoreSearch: true
         })
         .then(cachedResponse => {
 
-            // We have it cached → use it.
             if (cachedResponse) {
+                console.log('[SW] Cache:', event.request.url);
                 return cachedResponse;
             }
 
-            // Not cached → try the network.
+            console.log('[SW] Network:', event.request.url);
+
             return fetch(event.request);
         })
         .catch(error => {
@@ -101,13 +102,32 @@ self.addEventListener('fetch', event => {
                 event.request.url
             );
 
-            // If the user is opening/reloading the PWA
-            // while offline, return index.html.
             if (event.request.mode === 'navigate') {
-                return caches.match('/MUO-V1/index.html');
+
+                return caches.match('/MUO-V1/index.html')
+                    .then(indexResponse => {
+
+                        if (indexResponse) {
+                            return indexResponse;
+                        }
+
+                        // IMPORTANT:
+                        // Never let respondWith() receive undefined.
+                        return new Response(
+                            '<h1>Offline</h1><p>The application is not cached yet.</p>',
+                            {
+                                status: 503,
+                                headers: {
+                                    'Content-Type': 'text/html'
+                                }
+                            }
+                        );
+                    });
             }
 
-            throw error;
+            return new Response('', {
+                status: 503
+            });
         })
     );
 });
