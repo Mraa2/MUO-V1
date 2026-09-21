@@ -479,7 +479,6 @@ function createStar() {
 	} else {
 		WithStar.innerHTML = `<img src="icons/star-regular-full.svg" class="sizethree" alt=""></img>`;
 	}
-	console.log(WithStar.innerHTML, WithStar);
 }
 
 function createQuestionButtons(on){
@@ -746,10 +745,10 @@ WithStar.addEventListener("click", function() {
 
 	if (hasStar[curTopicName][on] == true) {
 		hasStar[curTopicName][on] = false;
-		WithStar.innerHTML = `<i class="fa-regular fa-star"></i>`;
+		WithStar.innerHTML = `<img src="icons/star-regular-full.svg" class="sizethree" alt=""></img>`;
 	} else {
 		hasStar[curTopicName][on] = true;
-		WithStar.innerHTML = `<i class="fa-solid fa-star"></i>`;
+		WithStar.innerHTML = `<img src="icons/star-solid-full.svg" class="sizethree" alt=""></img>`;
 	}
 });
 
