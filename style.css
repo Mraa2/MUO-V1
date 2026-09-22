@@ -32,22 +32,22 @@ button {
     color: var(--text);
 }
 
-img {
+img.icon {
   filter: brightness(0);
 }
 
-.dark img {
+.dark img.icon {
   filter: brightness(0) invert(1);
 }
 
-.dark img.sizeoneeight {
+.dark img.icon.sizeoneeight {
     filter: brightness(0);
 }
 
-img.invert {
+img.icon.invert {
   filter: brightness(0) invert(1);
 }
-.dark img.invert {
+.dark img.icon.invert {
   filter: brightness(0);
 }
 
@@ -80,7 +80,6 @@ h1 {
     background-color: transparent;
     color: var(--headLine);
     text-align: center;
-
     font-size: 4vh;
 }
 
@@ -296,16 +295,29 @@ p {
 }
 
 .button01 {
-    /* Width is set by your script */
     font-size: 5vw;
-    margin: 0 auto;         /* Restores horizontal centering on screen */
+    margin: 0 auto;
     margin-top: 1vh;
     border-radius: 1vh;
     
-    display: block;         /* Keeps block behavior so margin: 0 auto works */
-    position: relative;     /* Anchor for the absolute icon */
-    padding-left: 0%;      /* Replaces margin-left, scales with button width */
-    box-sizing: border-box; /* Ensures padding doesn't make button wider */
+    display: block;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.subtopicAbove {
+    background-color: transparent;
+    height: 5vh;
+    font-size: 3vw;
+    font-weight: bold;
+    align-items: flex-end;
+    text-align: left;
+    margin: 0 auto;
+    margin-top: 1vh;
+    
+    display: flex;
+    position: relative;
+    box-sizing: border-box;
 }
 
 .button01 > img {
@@ -383,6 +395,13 @@ p {
 
     background: #0865c7;
     border-radius: calc(0.1vh + 0.05vw);
+}
+
+.scroll-box {
+    background-color: transparent;
+    height: 50vh;
+    overflow-y: auto;
+    padding-bottom: 10vh;
 }
 
 #topicsSlider {

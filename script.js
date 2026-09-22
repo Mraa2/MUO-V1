@@ -38,25 +38,25 @@ const slider = document.getElementById("topicsSlider");
 const sliderContainer = document.querySelector(".sliderContainer")
 
 const topics = {};
+const createdIds = {};
+const answerButRef = {};
 
 const dataTable = [];
 const imageTable = {};
+const subTpcsOfTpcs = [];
+let currentId;
+let progress;
+let staring;
+let createdFile;
 
 let tablesCreated = false;
 
-let currentId;
-let createdFile;
-const createdIds = {};
-let progress;
-let staring;
-
 let curName;
+
 let curTopicName;
-const answerButRef = {};
 let onIndex = 0;
 let currentMax = 0;
 const isCorrect = {};
-
 const curRandom = {};
 
 let darkModeSet = false;
@@ -95,15 +95,26 @@ function createQuestionClasses(){
 	const DatabaseData = topics[curTopicName].progressData || [];
 	const StarsDataBABA = topics[curTopicName].starsData || [];
 
+	Object.keys(curQPC).forEach(value => delete curQPC[value]);
+
 	curQPC["all"] = QuestionsData;
 	curQPC["unknown"] = [];
 	curQPC["wrong"] = [];
 	curQPC["stars"] = [];
 
+	const invalidValues = ["all", "unknown", "wrong", "stars"];
+
 	if (DatabaseData) {
 		for(let i = 0; i < QuestionsData.length; i++) {
 			const qData = QuestionsData[i]
 			const gotThis = qData["question"];
+
+			const cst = qData["topic"];
+
+			if (cst && cst !== "" && !invalidValues.includes(cst)) {
+				curQPC[cst] = curQPC[cst] || [];
+				curQPC[cst].push(qData);
+			}
 
 			const currentQuery = DatabaseData[gotThis];
 			const currentQuery2 = StarsDataBABA[gotThis];
@@ -149,14 +160,14 @@ function createQuestionClasses(){
 
 	const icons = {
 		all: "",
-		unknown: `<img src="icons/question-solid-full.svg" class="adaptSizeSecond" alt=""></img>`,
-		wrong: `<img src="icons/triangle-exclamation-solid-full.svg" class="adaptSizeSecond" alt=""></img>`,
-		stars: `<img src="icons/star-solid-full.svg" class="adaptSizeSecond" alt=""></img>`,
+		unknown: `<img src="icons/question-solid-full.svg" class="icon adaptSizeSecond" alt=""></img>`,
+		wrong: `<img src="icons/triangle-exclamation-solid-full.svg" class="icon adaptSizeSecond" alt=""></img>`,
+		stars: `<img src="icons/star-solid-full.svg" class="icon adaptSizeSecond" alt=""></img>`,
 	};
 
 	for (let i = 0; i < newArray.length; i++) {
-		const key = order[i]
-		const data = curQPC[key]
+		const key = order[i];
+		const data = curQPC[key];
 		if (data !== undefined && data.length > 0) {
 			newStrng.push(`<button type="button" data-qtp="${key}" id="${key}(FLIDF)" class="button01">
 				${icons[key]}
@@ -165,6 +176,24 @@ function createQuestionClasses(){
 			buttonIds123.push(`${key}(FLIDF)`);
 		}	
 	}
+
+	let done = false;
+	Object.keys(curQPC).forEach(value => {
+		const data = curQPC[value]
+		if (!newArray.includes(data) && data !== undefined && data.length > 0) {
+			if (!done) {
+				newStrng.push(
+					`<div class="subtopicAbove">Podle tématu</div>`
+				);
+				done = true;
+			}
+			newStrng.push(`<button type="button" data-qtp="${value}" id="${value}(FLIDF)" class="button01">
+				${value}
+			</button>`);
+			buttonIds123.push(`${value}(FLIDF)`);
+		}
+	});
+
 
 	if (newStrng.length > 0) {
 		const newString = newStrng.join("");
@@ -177,13 +206,11 @@ function createQuestionClasses(){
 		for (let i = 0; i < buttonIds123.length; i++) {
 			const rn123 = buttonIds123[i];
 
-			const newObject = document.getElementById(rn123)
+			const newObject = document.getElementById(rn123);
 			if (i == 1) {
-				newObject.style.marginTop = "5vh";
+				newObject.style.marginTop = "4vh";
 			}
 
-
-			
 			newObject.onclick = function(){
 				const QTP = newObject.dataset.qtp;
 				curOQT = QTP;
@@ -471,9 +498,9 @@ function createStar() {
 	const on = curRandom[curOQT][onIndex]["question"];
 
 	if (topics[curTopicName].starsData[on] == true) {
-		WithStar.innerHTML = `<img src="icons/star-solid-full.svg" class="sizethree" alt=""></img>`;
+		WithStar.innerHTML = `<img src="icons/star-solid-full.svg" class="icon sizethree" alt=""></img>`;
 	} else {
-		WithStar.innerHTML = `<img src="icons/star-regular-full.svg" class="sizethree" alt=""></img>`;
+		WithStar.innerHTML = `<img src="icons/star-regular-full.svg" class="icon sizethree" alt=""></img>`;
 	}
 }
 
@@ -612,17 +639,19 @@ function addNewTopic(create) {
         allQuestions: structuredClone(dataTable),
         images: structuredClone(imageTable),
         progressData: structuredClone(progress),
-        starsData: structuredClone(staring)
+        starsData: structuredClone(staring),
+        subtopics: structuredClone(subTpcsOfTpcs)
     };
     createdIds[currentId] = curName;
 
 	dataTable.length = 0;
+	subTpcsOfTpcs.length = 0;
 	Object.keys(imageTable).forEach(kez => delete imageTable[kez]);
 
 	tablesCreated = false;
 	checkIsGreen = false;
 
-	checkButton.innerHTML = `<img src="icons/circle-check-regular-full.svg" id="hablahabla" class="sizeseven invert"></img>`
+	checkButton.innerHTML = `<img src="icons/circle-check-regular-full.svg" id="hablahabla" class="icon sizeseven invert"></img>`
 
 	if (!create) {
 		console.log(createdFile, currentId);
@@ -643,11 +672,11 @@ function isCheckAvailable(){
 	if ((tablesCreated) && (curName) && (!topics[curName]) && (curName !== "")) {
 		checkIsGreen = true;
 
-		checkButton.innerHTML = `<img src="icons/circle-check-regular-full.svg" id="hablahabla" class="sizeseven"></img>`
+		checkButton.innerHTML = `<img src="icons/circle-check-regular-full.svg" id="hablahabla" class="icon sizeseven"></img>`
 	} else {
 		checkIsGreen = false;
 
-		checkButton.innerHTML = `<img src="icons/circle-check-regular-full.svg" id="hablahabla" class="sizeseven invert"></img>`
+		checkButton.innerHTML = `<img src="icons/circle-check-regular-full.svg" id="hablahabla" class="icon sizeseven invert"></img>`
 	}
 }
 
@@ -743,10 +772,10 @@ WithStar.addEventListener("click", function() {
 
 	if (topics[curTopicName].starsData[on] == true) {
 		topics[curTopicName].starsData[on] = false;
-		WithStar.innerHTML = `<img src="icons/star-regular-full.svg" class="sizethree" alt=""></img>`;
+		WithStar.innerHTML = `<img src="icons/star-regular-full.svg" class="icon sizethree" alt=""></img>`;
 	} else {
 		topics[curTopicName].starsData[on] = true;
-		WithStar.innerHTML = `<img src="icons/star-solid-full.svg" class="sizethree" alt=""></img>`;
+		WithStar.innerHTML = `<img src="icons/star-solid-full.svg" class="icon sizethree" alt=""></img>`;
 	}
 });
 
@@ -984,6 +1013,7 @@ async function createDataTable(zipEntry) {
 			const csvTable = result.data;
 
 			let currentTopic = "";
+			const oneCreated = [];
 
 			for (let i = 0; i < csvTable.length; i++) {
 				const rn = csvTable[i];
@@ -1026,6 +1056,11 @@ async function createDataTable(zipEntry) {
 
 				if (!skip && currentTopic !== "" && currentTopic !== undefined && currentTopic !== null)  {
 					current["topic"] = currentTopic;
+					if (!oneCreated.includes(currentTopic)) {
+						oneCreated.push(currentTopic);
+						subTpcsOfTpcs.push(currentTopic);
+					}
+					
 				}
 
 				if (!skip) {
@@ -1473,10 +1508,10 @@ async function loadAllZipsAtStart() {
 function setDarkMode() {
 	if (darkModeSet) {
 		document.documentElement.classList.toggle("dark");
-		darkModeButton.innerHTML = `<img src="icons/sun-solid-full.svg" class="sizethree" alt=""></img>`
+		darkModeButton.innerHTML = `<img src="icons/sun-solid-full.svg" class="icon sizethree" alt=""></img>`
 	} else {
 		document.documentElement.classList.remove("dark");
-		darkModeButton.innerHTML = `<img src="icons/moon-solid-full.svg" class="sizethree" alt=""></img>`
+		darkModeButton.innerHTML = `<img src="icons/moon-solid-full.svg" class="icon sizethree" alt=""></img>`
 	}
 	saveDarkMode();
 }

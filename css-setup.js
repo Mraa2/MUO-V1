@@ -5,7 +5,6 @@ const fillerBox = document.querySelector(".fillerBox");
 const fileBox = document.querySelector(".fileBox");
 const eniszwei = document.querySelector(".eniszwei");
 
-
 const questionHeadClass = document.querySelector(".questionHeadClass");
 
 const p1 = 83;
@@ -60,6 +59,12 @@ function updateFieldSize(){
 		button01.style.height = `${hf1 + siz2}vh`;
 		button01.style.fontSize = `${(hf1 + siz2)*0.55}vh`;
 		button01.style.borderRadius = `${(hf1 + siz2)*0.25}vh`;
+	});
+
+	const subtopicAbove = document.querySelectorAll(".subtopicAbove")
+	subtopicAbove.forEach(stA => {
+		stA.style.width = `calc(${(wf1 + sizing)}vw - ${(hf1 + siz2)*0.5}vh)`;
+		stA.style.fontSize = `${(hf1 + siz2)*0.3}vh`;
 	});
 
 	const textILook = document.querySelectorAll(".textInsideLookin");
