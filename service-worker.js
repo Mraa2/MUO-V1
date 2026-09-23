@@ -1,4 +1,4 @@
-const CACHE_NAME = 'v1.73_static_cache';
+const CACHE_NAME = 'v1.74_static_cache';
 
 const ASSETS_TO_CACHE = [
     '/MUO-V1/',
