@@ -229,7 +229,7 @@ p {
     white-space: nowrap;
 }
 
-#addFileButton {
+/*#addFileButton {
     position: fixed;
 
     top: 45vh;
@@ -237,7 +237,7 @@ p {
 
     width: 15vw;
     height: 15vh;
-}
+}*/
 
 #hablahabla {
     position: fixed;
