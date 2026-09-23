@@ -168,12 +168,12 @@ function createQuestionClasses(){
 	let isPastZero = false;
 
 	for (let i = 0; i < newArray.length; i++) {
-		if (i > 0) {
-			isPastZero = true;
-		}
 		const key = order[i];
 		const data = curQPC[key];
 		if (data !== undefined && data.length > 0) {
+			if (i > 0) {
+				isPastZero = true;
+			}
 			newStrng.push(`<button type="button" data-qtp="${key}" id="${key}(FLIDF)" class="button01">
 				${icons[key]}
 				<div class="textInsideLookin">${renamer[key]}</div>
