@@ -205,7 +205,7 @@ p {
     top: 83vh;
     left: 75vw;
 
-    width: 15vw;
+    width: 15vh;
     height: 15vh;
 }
 
@@ -244,8 +244,8 @@ p {
     top: 83vh;
     left: 75vw;
 
-    width: 10vw;
-    height: 10vh;
+    width: 15vh;
+    height: 15vh;
 
     color: red;
 }
