@@ -165,7 +165,7 @@ function createQuestionClasses(){
 		stars: `<img src="icons/star-solid-full.svg" class="icon adaptSizeSecond" alt=""></img>`,
 	};
 
-	const isPastZero = false;
+	let isPastZero = false;
 
 	for (let i = 0; i < newArray.length; i++) {
 		if (i > 0) {
