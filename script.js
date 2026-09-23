@@ -648,7 +648,7 @@ function addNewTopic(create) {
 	tablesCreated = false;
 	checkIsGreen = false;
 
-	checkButton.innerHTML = `<img src="icons/circle-check-regular-full.svg" id="hablahabla" class="icon sizeseven invert"></img>`
+	checkButton.innerHTML = `<img src="icons/circle-check-regular-full.svg" id="hablahabla" class="icon sizeseven red"></img>`
 
 	if (!create) {
 		console.log(createdFile, currentId);
@@ -669,11 +669,11 @@ function isCheckAvailable(){
 	if ((tablesCreated) && (curName) && (!topics[curName]) && (curName !== "")) {
 		checkIsGreen = true;
 
-		checkButton.innerHTML = `<img src="icons/circle-check-regular-full.svg" id="hablahabla" class="icon sizeseven"></img>`
+		checkButton.innerHTML = `<img src="icons/circle-check-regular-full.svg" id="hablahabla" class="icon sizeseven green"></img>`
 	} else {
 		checkIsGreen = false;
 
-		checkButton.innerHTML = `<img src="icons/circle-check-regular-full.svg" id="hablahabla" class="icon sizeseven invert"></img>`
+		checkButton.innerHTML = `<img src="icons/circle-check-regular-full.svg" id="hablahabla" class="icon sizeseven red"></img>`
 	}
 }
 
