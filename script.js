@@ -165,7 +165,12 @@ function createQuestionClasses(){
 		stars: `<img src="icons/star-solid-full.svg" class="icon adaptSizeSecond" alt=""></img>`,
 	};
 
+	const isPastZero = false;
+
 	for (let i = 0; i < newArray.length; i++) {
+		if (i > 0) {
+			isPastZero = true;
+		}
 		const key = order[i];
 		const data = curQPC[key];
 		if (data !== undefined && data.length > 0) {
@@ -207,7 +212,7 @@ function createQuestionClasses(){
 			const rn123 = buttonIds123[i];
 
 			const newObject = document.getElementById(rn123);
-			if (i == 1) {
+			if (i == 1 && isPastZero) {
 				newObject.style.marginTop = "4vh";
 			}
 
