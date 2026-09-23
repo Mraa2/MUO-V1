@@ -681,7 +681,7 @@ function startTest(QTP) {
 	confirmationOverlay.style.display = "flex";
 
 	confirmationBox.innerHTML = `
-		<p style="font-size: 5vh;">Spustit test?</p>
+		<p style="font-size: 5vh;">Spustit otázky?</p>
 		<button type="button" id="confirmSix" class="buttonYes">Ano</button>
 		<button type="button" id="cancelSix" class="buttonNo">Ne</button>
 	`;
@@ -843,7 +843,7 @@ getBackOnQuest.addEventListener("click", function(){
 	confirmationOverlay.style.display = "flex";
 
 	confirmationBox.innerHTML = `
-		<p style="font-size: 5vh;">Ukončit test?</p>
+		<p style="font-size: 5vh;">Ukončit otázky?</p>
 		<button type="button" id="confirm3" class="buttonYes">Ano</button>
 		<button type="button" id="cancel3" class="buttonNo">Ne</button>
 	`;
