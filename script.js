@@ -168,6 +168,7 @@ function createQuestionClasses(){
 	let isPastZero = false;
 
 	for (let i = 0; i < newArray.length; i++) {
+
 		const key = order[i];
 		const data = curQPC[key];
 		if (data !== undefined && data.length > 0) {
@@ -218,8 +219,7 @@ function createQuestionClasses(){
 
 			newObject.onclick = function(){
 				const QTP = newObject.dataset.qtp;
-				curOQT = QTP;
-				openAUkNsWR();
+				startTest(QTP);
 			};
 		}
 	}
@@ -307,16 +307,6 @@ function createStatBar() {
 		unanswered = perTopicData.length;
 		answerObject["unanswered"] = 100;
 	}
-
-	const format = `<div id="" style="
-		background-color:;
-		position: absolute;
-		top:;
-		left:;
-		width:;
-		height:;
-		transform: translateY(-50%);">
-	</div>`;
 
 	const array = [];
 	array.push(answerObject["right"]);
@@ -684,6 +674,25 @@ function isCheckAvailable(){
 		checkIsGreen = false;
 
 		checkButton.innerHTML = `<img src="icons/circle-check-regular-full.svg" id="hablahabla" class="icon sizeseven invert"></img>`
+	}
+}
+
+function startTest(QTP) {
+	confirmationOverlay.style.display = "flex";
+
+	confirmationBox.innerHTML = `
+		<p style="font-size: 5vh;">Spustit test?</p>
+		<button type="button" id="confirmSix" class="buttonYes">Ano</button>
+		<button type="button" id="cancelSix" class="buttonNo">Ne</button>
+	`;
+
+	document.getElementById("confirmSix").onclick = function() {
+		curOQT = QTP;
+		openAUkNsWR();
+		confirmationOverlay.style.display = "none";
+	}
+	document.getElementById("cancelSix").onclick = function() {
+		confirmationOverlay.style.display = "none";
 	}
 }
 
