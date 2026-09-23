@@ -44,13 +44,14 @@ img.icon {
     filter: brightness(0);
 }
 
-img.icon.invert {
+img.icon.red {
   filter: brightness(0) saturate(100%) invert(16%) sepia(99%) saturate(7480%)
-           hue-rotate(357deg) brightness(93%) contrast(118%);
+           hue-rotate(357deg) brightness(93%) contrast(118%);  
 }
-.dark img.icon.invert {
+
+img.icon.green {
   filter: brightness(0) saturate(100%) invert(42%) sepia(93%) saturate(1000%)
-           hue-rotate(85deg) brightness(95%) contrast(105%);
+           hue-rotate(85deg) brightness(95%) contrast(105%);  
 }
 
 .sizeseven {
