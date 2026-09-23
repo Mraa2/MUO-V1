@@ -298,7 +298,8 @@ function createStatBar() {
 		answerObject["unsure"] = (unsure/all) * 100;
 		answerObject["unanswered"] = (unanswered/all) * 100;
 	} else {
-		all = perTopicData.length
+		all = perTopicData.length;
+		unanswered = perTopicData.length;
 		answerObject["unanswered"] = 100;
 	}
 
