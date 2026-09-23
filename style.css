@@ -45,10 +45,12 @@ img.icon {
 }
 
 img.icon.invert {
-  filter: brightness(0) invert(1);
+  filter: brightness(0) saturate(100%) invert(16%) sepia(99%) saturate(7480%)
+           hue-rotate(357deg) brightness(93%) contrast(118%);
 }
 .dark img.icon.invert {
-  filter: brightness(0);
+  filter: brightness(0) saturate(100%) invert(42%) sepia(93%) saturate(1000%)
+           hue-rotate(85deg) brightness(95%) contrast(105%);
 }
 
 .sizeseven {
