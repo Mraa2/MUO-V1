@@ -44,14 +44,13 @@ img.icon {
     filter: brightness(0);
 }
 
-img.icon.red {
+img.icon.invert {
   filter: brightness(0) saturate(100%) invert(16%) sepia(99%) saturate(7480%)
-           hue-rotate(357deg) brightness(93%) contrast(118%);  
+           hue-rotate(357deg) brightness(93%) contrast(118%);
 }
-
-img.icon.green {
+.dark img.icon.invert {
   filter: brightness(0) saturate(100%) invert(42%) sepia(93%) saturate(1000%)
-           hue-rotate(85deg) brightness(95%) contrast(105%);  
+           hue-rotate(85deg) brightness(95%) contrast(105%);
 }
 
 .sizeseven {
@@ -238,8 +237,8 @@ p {
     top: 45vh;
     left: 45vw;
 
-    width: 15vw;
-    height: 15vh;
+    width: 10vw;
+    height: 10vh;
 }*/
 
 #hablahabla {
@@ -405,6 +404,15 @@ p {
     height: 50vh;
     overflow-y: auto;
     padding-bottom: 10vh;
+}
+
+.subTopicBar {
+    position: relative;
+    background-color: black;
+    width: 60vw;
+    height: 3vh;
+    margin: 0 auto;
+    margin-bottom: 1vh;
 }
 
 #topicsSlider {

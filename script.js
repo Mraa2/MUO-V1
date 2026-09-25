@@ -261,6 +261,45 @@ obs2.observe(menuPage, {
     attributeFilter: ["style"]
 });
 
+function createBar(insertBar, answerObject) {
+	const array = [];
+	array.push(answerObject["right"]);
+	array.push(answerObject["unsure"]);
+	array.push(answerObject["wrong"]);
+	array.push(answerObject["unanswered"]);
+
+	const order = ["right", "unsure", "wrong", "unanswered"];
+	const coloring = {
+		right: "green",
+		unsure: "orange",
+		wrong: "red",
+		unanswered: "lightgray"
+	}
+
+	const newStringTable = [];
+	let lastPos = 0;
+
+	for (let i = 0; i < array.length; i++) {
+		const key = order[i];
+		const data = answerObject[key] || 0;
+		const newFormat = `<div id="" style="
+			background-color: ${coloring[key]};
+			position: absolute;
+			top: 50%;
+			left: ${lastPos}%;
+			width: ${data}%;
+			height: 95%;
+			transform: translateY(-50%);">
+		</div>`;
+
+		newStringTable.push(newFormat);
+		lastPos += data-0.02;
+	}
+
+	const newString = newStringTable.join("");
+	insertBar.innerHTML = newString;
+}
+
 function createStatBar() {
 	const perTopicData = topics[curTopicName].allQuestions;
 	const perTopicBasic = topics[curTopicName].progressData;
@@ -308,42 +347,7 @@ function createStatBar() {
 		answerObject["unanswered"] = 100;
 	}
 
-	const array = [];
-	array.push(answerObject["right"]);
-	array.push(answerObject["unsure"]);
-	array.push(answerObject["wrong"]);
-	array.push(answerObject["unanswered"]);
-	
-	const order = ["right", "unsure", "wrong", "unanswered"];
-	const coloring = {
-		right: "green",
-		unsure: "orange",
-		wrong: "red",
-		unanswered: "lightgray"
-	}
-
-	const newStringTable = [];
-	let lastPos = 0;
-
-	for (let i = 0; i < array.length; i++) {
-		const key = order[i];
-		const data = answerObject[key] || 0;
-		const newFormat = `<div id="" style="
-			background-color: ${coloring[key]};
-			position: absolute;
-			top: 50%;
-			left: ${lastPos}%;
-			width: ${data}%;
-			height: 95%;
-			transform: translateY(-50%);">
-		</div>`;
-
-		newStringTable.push(newFormat);
-		lastPos += data-0.02;
-	}
-
-	const newString = newStringTable.join("");
-	showcaseBar.innerHTML = newString;
+	createBar(showcaseBar, answerObject);
 
 	console.log(all)
 	numberShowcase.innerHTML = `${all - unanswered}/${all} zodpovězených otázek`;
@@ -648,7 +652,7 @@ function addNewTopic(create) {
 	tablesCreated = false;
 	checkIsGreen = false;
 
-	checkButton.innerHTML = `<img src="icons/circle-check-regular-full.svg" id="hablahabla" class="icon sizeseven red"></img>`
+	checkButton.innerHTML = `<img src="icons/circle-check-regular-full.svg" id="hablahabla" class="icon sizeseven invert"></img>`
 
 	if (!create) {
 		console.log(createdFile, currentId);
@@ -669,22 +673,85 @@ function isCheckAvailable(){
 	if ((tablesCreated) && (curName) && (!topics[curName]) && (curName !== "")) {
 		checkIsGreen = true;
 
-		checkButton.innerHTML = `<img src="icons/circle-check-regular-full.svg" id="hablahabla" class="icon sizeseven green"></img>`
+		checkButton.innerHTML = `<img src="icons/circle-check-regular-full.svg" id="hablahabla" class="icon sizeseven"></img>`
 	} else {
 		checkIsGreen = false;
 
-		checkButton.innerHTML = `<img src="icons/circle-check-regular-full.svg" id="hablahabla" class="icon sizeseven red"></img>`
+		checkButton.innerHTML = `<img src="icons/circle-check-regular-full.svg" id="hablahabla" class="icon sizeseven invert"></img>`
 	}
 }
 
-function startTest(QTP) {
-	confirmationOverlay.style.display = "flex";
+function createSubtopicStatBar(element, QTP) {
+	const currentQueryData = curQPC[QTP];
+	const checkData = topics[curTopicName].progressData;
 
-	confirmationBox.innerHTML = `
-		<p style="font-size: 5vh;">Spustit otázky?</p>
+	const answerObject = {};
+
+	if (checkData) {
+		let all = 0;
+		let unanswered = 0;
+		let right = 0;
+		let wrong = 0;
+		let unsure = 0;
+
+		for (let i = 0; i < currentQueryData.length; i++) {
+			const qData = currentQueryData[i]
+			const gotThis = qData["question"];
+
+			const currentQuery = checkData[gotThis];
+
+			if (!currentQuery) {
+				unanswered += 1;
+			} else {
+				const [weight, decimal] = calculateQueryState(gotThis);
+				if (weight < 0) {
+					if (decimal >= 0.5) {
+						unsure += 1;
+					} else {
+						wrong += 1;
+					}
+				} else {
+					right += 1;
+				}
+			}
+		}
+
+		all = right + wrong + unsure + unanswered;
+
+		answerObject["right"] = (right/all) * 100;
+		answerObject["wrong"] = (wrong/all) * 100;
+		answerObject["unsure"] = (unsure/all) * 100;
+		answerObject["unanswered"] = (unanswered/all) * 100;
+	} else {
+		answerObject["unanswered"] = 100;
+	}
+
+	createBar(element, answerObject);
+}
+
+function startTest(QTP) {
+	confirmationOverlay.style.display = "flex";	
+
+	const includeTable = ["all", "unknown", "wrong", "stars"];
+
+	let format;
+	if (includeTable.includes(QTP)) {
+		format = `<p style="font-size: 5vh;">Spustit otázky?</p>
 		<button type="button" id="confirmSix" class="buttonYes">Ano</button>
-		<button type="button" id="cancelSix" class="buttonNo">Ne</button>
-	`;
+		<button type="button" id="cancelSix" class="buttonNo">Ne</button>`;
+	} else {
+		format = `<p style="font-size: 5vh;">Spustit otázky?</p>
+		<div style="font-size: 2vh; margin-bottom:0.5vh; font-weight: bold;">${QTP} - statistiky</div>
+		<div class="subTopicBar" id="subtopicBarStats"></div>
+		<button type="button" id="confirmSix" class="buttonYes">Ano</button>
+		<button type="button" id="cancelSix" class="buttonNo">Ne</button>`;
+	}
+	confirmationBox.innerHTML = format;
+
+	const element = document.getElementById("subtopicBarStats")
+	if (element) {
+		createSubtopicStatBar(element, QTP);
+	}
 
 	document.getElementById("confirmSix").onclick = function() {
 		curOQT = QTP;
