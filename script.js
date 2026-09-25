@@ -652,7 +652,7 @@ function addNewTopic(create) {
 	tablesCreated = false;
 	checkIsGreen = false;
 
-	checkButton.innerHTML = `<img src="icons/circle-check-regular-full.svg" id="hablahabla" class="icon sizeseven green"></img>`
+	checkButton.innerHTML = `<img src="icons/circle-check-regular-full.svg" id="hablahabla" class="icon sizeseven red"></img>`
 
 	if (!create) {
 		console.log(createdFile, currentId);
