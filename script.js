@@ -763,6 +763,46 @@ function startTest(QTP) {
 	}
 }
 
+let lastPress = 0;
+const doubleDelay = 1000;
+
+history.pushState(null, "", location.href);
+
+window.addEventListener("popstate", () => {
+    const now = Date.now();
+
+    if (now - lastPress <= doubleDelay) {
+        lastPress = 0;
+        history.back();
+        return;
+    }
+
+    // First back
+    lastPress = now;
+
+    history.pushState(null, "", location.href);
+
+    showToast();
+});
+
+function showToast() {
+
+    if (fileLooker.style.display === "block") {
+
+        fileLooker.style.display = "none";
+        menuPage.style.display = "block";
+
+    } else if (uploadPage.style.display === "block") {
+
+        uploadPage.style.display = "none";
+        menuPage.style.display = "block";
+
+    } else if (questPage.style.display === "block") {
+
+        openQuestBackOverlay();
+    }
+}
+
 deleteTopicus.addEventListener("click", function() {
 	confirmationOverlay.style.display = "flex";
 
@@ -906,24 +946,28 @@ getBackUpload.addEventListener("click", function() {
 	uploadPage.style.display = "none";
 });
 
+function openQuestBackOverlay() {
+    confirmationOverlay.style.display = "flex";
+
+    confirmationBox.innerHTML = `
+        <p style="font-size: 5vh;">Ukončit otázky?</p>
+        <button type="button" id="confirm3" class="buttonYes">Ano</button>
+        <button type="button" id="cancel3" class="buttonNo">Ne</button>
+    `;
+
+    document.getElementById("confirm3").onclick = function() {
+        questPage.style.display = "none";
+        fileLooker.style.display = "block";
+        confirmationOverlay.style.display = "none";
+    };
+
+    document.getElementById("cancel3").onclick = function() {
+        confirmationOverlay.style.display = "none";
+    };
+}
+
 getBackOnQuest.addEventListener("click", function(){
-	confirmationOverlay.style.display = "flex";
-
-	confirmationBox.innerHTML = `
-		<p style="font-size: 5vh;">Ukončit otázky?</p>
-		<button type="button" id="confirm3" class="buttonYes">Ano</button>
-		<button type="button" id="cancel3" class="buttonNo">Ne</button>
-	`;
-
-	document.getElementById("confirm3").onclick = function() {
-		questPage.style.display = "none";
-		fileLooker.style.display = "block";
-		confirmationOverlay.style.display = "none";
-	}
-	document.getElementById("cancel3").onclick = function() {
-		confirmationOverlay.style.display = "none";
-	}
-	
+	openQuestBackOverlay()
 });
 
 addButton.addEventListener("click", function(){
