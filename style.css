@@ -48,7 +48,8 @@ img.icon.red {
   filter: brightness(0) saturate(100%) invert(16%) sepia(99%) saturate(7480%)
            hue-rotate(357deg) brightness(93%) contrast(118%);
 }
-.dark img.icon.green {
+
+img.icon.green {
   filter: brightness(0) saturate(100%) invert(42%) sepia(93%) saturate(1000%)
            hue-rotate(85deg) brightness(95%) contrast(105%);
 }
@@ -254,18 +255,14 @@ p {
 
 .questionHeadClass {
     background-color: transparent;
-    font-size: 5vh;
+    font-size: 3.5vh;
 }
 
 .iconGetNext {
-    position: absolute;
+    position: fixed;
 
     top: 89vh;
     left: 85vw;
-
-    transform: translateX(var(--move-offset, 0vw));
-  
-    transition: transform 0.1s ease-out;
 
     width: 3vw;
     height: 3vh;
@@ -378,7 +375,7 @@ p {
 
 .sliderContainer {
     background-color: transparent;
-    position: relative;
+    position: fixed;
     top: 89vh;
     left: 20vw;
     width: 60vw;
@@ -415,6 +412,30 @@ p {
     margin-bottom: 1vh;
 }
 
+.lowBar {
+    background-color: var(--background);
+    position: fixed;
+
+    top: 85vh;
+    left: 0vw;
+
+    height: 15vh;
+    width: 100vw;
+}
+
+.scroll-box-questions{
+    background-color: transparent;
+    position: fixed;
+
+    top: 6vh;
+    left: 0vw;
+
+    height: 79vh;
+    width: 100vw;
+
+    overflow-y: auto;
+}
+
 #topicsSlider {
     position: absolute;
     width: 100%;
@@ -444,15 +465,12 @@ p {
 
 #questionFrame {
     background-color: transparent;
-    position: fixed;
 
-    /* Position */
-    top: 6vh;
-    left: 10vw;
+    margin-left: 10vw;
 
     /* Size */
     width: 80vw;
-    height: 43vh;
+    min-height: 43vh;
 
     display: flex; 
     flex-direction: column; 
@@ -480,7 +498,7 @@ p {
     background-color: transparent;
     flex: 1 1 0;
     width: 100%;
-    min-height: 0;
+    min-height: 25vh;
 
     display: flex;
     align-items: center;
@@ -510,19 +528,29 @@ p {
 
 #answersTable {
     background-color: transparent;
-    position: fixed;
-    top: 50vh;
+    position: relative;
+    top: 2vh;
     left: 15vw;
     width: 70vw;
-    height: 35vh;
+    /* Allow the container to grow with content instead of clipping at 35vh */
+    min-height: 35vh;
+    height: auto;
     display: grid;
+    /* Let grid rows adapt automatically based on text height */
     grid-template-columns: repeat(1, 1fr);
-    gap: 1.2vh
+    grid-auto-rows: min-content;
+    gap: 1.2vh;
 }
 
 #answersTable * {
     border-radius: 1.2vh;
     box-sizing: border-box;
+    /* Ensure child buttons handle long text cleanly */
+    height: auto;
+    min-height: max-content;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    padding: 1.8vh 1.5vw;
 }
 
 #exportProgressFile {

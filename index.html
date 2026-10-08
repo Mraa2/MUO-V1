@@ -34,7 +34,7 @@
         </button>
 
         <div class ="withoutBox">
-            <div id = "nameTag">Jméno témata</div>
+            <div id = "nameTag">Jméno tématu</div>
             <input id = "textInput" placeholder="např. technologie" class="fillerBox" maxlength="16">
         </div>
 
@@ -113,8 +113,6 @@
                 <img src="icons/trash-solid-full.svg" class="icon changeProgressIcons sizeoneeight" alt=""></img>
             </button>        
         </div>
-
-
     </div>
 
     <div id = "questionPage">
@@ -122,28 +120,31 @@
             <img src="icons/arrow-left-solid-full.svg" alt="" class="icon sizethree"></img>
         </button>
 
-        <div id="questionFrame">
-           <div id="questionHead" class="questionHeadClass"></div>
-           <div id="imageFrame"></div>
-        </div>
-
         <button type="button" id="WithStar">
         </button>
 
-        <div id="answersTable"></div>
+        <div class="scroll-box-questions">
+            <div id="questionFrame">
+                <div id="questionHead" class="questionHeadClass"></div>
+                <div id="imageFrame"></div>
+            </div>
 
-        <button type ="button" class ="iconGetNext" id="goToNextQu">
-            <img src="icons/chevron-right-solid-full.svg" class="icon sizethree" alt=""></img>
-        </button>
+            <div id="answersTable"></div>
+        </div>
 
-        <button type="button" class ="iconGetBack2" id="goToLastQu">
-            <img src="icons/chevron-left-solid-full.svg" class="icon sizethree" alt=""></img>
-        </button>
+        <div class="lowBar">
+            <button type ="button" class ="iconGetNext" id="goToNextQu">
+                <img src="icons/chevron-right-solid-full.svg" class="icon sizethree" alt=""></img>
+            </button>
 
-        <div class="sliderContainer">
-            <div class="sliderTrack"></div>
+            <button type="button" class ="iconGetBack2" id="goToLastQu">
+                <img src="icons/chevron-left-solid-full.svg" class="icon sizethree" alt=""></img>
+            </button>
 
-            <input type="range" id="topicsSlider" min="0" value="0" max="50">
+            <div class="sliderContainer">
+                <div class="sliderTrack"></div>
+                <input type="range" id="topicsSlider" min="0" value="0" max="50">
+            </div>
         </div>
     </div>
 
