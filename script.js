@@ -771,7 +771,7 @@ history.pushState({ app: true }, "", location.href);
 window.addEventListener("popstate", () => {
     const now = Date.now();
 
-    // Overlay is open
+    // Overlay is open → close it
     if (confirmationOverlay.style.display === "flex") {
         confirmationOverlay.style.display = "none";
         lastPress = 0;
@@ -780,8 +780,11 @@ window.addEventListener("popstate", () => {
         return;
     }
 
-    // Double back
-    if (now - lastPress <= doubleDelay && menuPage.style.display == "block") {
+    // Double back ONLY on menu page → leave
+    if (
+        now - lastPress <= doubleDelay &&
+        menuPage.style.display === "block"
+    ) {
         lastPress = 0;
         history.back();
         return;
