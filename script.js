@@ -764,13 +764,23 @@ function startTest(QTP) {
 }
 
 let lastPress = 0;
-const doubleDelay = 1000;
+const doubleDelay = 500;
 
-history.pushState(null, "", location.href);
+history.pushState({ app: true }, "", location.href);
 
 window.addEventListener("popstate", () => {
     const now = Date.now();
 
+    // Overlay is open
+    if (confirmationOverlay.style.display === "flex") {
+        confirmationOverlay.style.display = "none";
+        lastPress = 0;
+
+        history.pushState({ app: true }, "", location.href);
+        return;
+    }
+
+    // Double back
     if (now - lastPress <= doubleDelay) {
         lastPress = 0;
         history.back();
@@ -780,10 +790,11 @@ window.addEventListener("popstate", () => {
     // First back
     lastPress = now;
 
-    history.pushState(null, "", location.href);
+    history.pushState({ app: true }, "", location.href);
 
     showToast();
 });
+
 
 function showToast() {
 
@@ -801,6 +812,37 @@ function showToast() {
 
         openQuestBackOverlay();
     }
+}
+
+
+function openQuestBackOverlay() {
+
+    confirmationOverlay.style.display = "flex";
+
+    confirmationBox.innerHTML = `
+        <p style="font-size: 5vh;">Ukončit otázky?</p>
+        <button type="button" id="confirm3" class="buttonYes">Ano</button>
+        <button type="button" id="cancel3" class="buttonNo">Ne</button>
+    `;
+
+    // Give the overlay its own history entry
+    history.pushState({ overlay: true }, "", location.href);
+
+    document.getElementById("confirm3").onclick = function() {
+
+        questPage.style.display = "none";
+        fileLooker.style.display = "block";
+        confirmationOverlay.style.display = "none";
+
+        lastPress = 0;
+    };
+
+    document.getElementById("cancel3").onclick = function() {
+
+        confirmationOverlay.style.display = "none";
+
+        lastPress = 0;
+    };
 }
 
 deleteTopicus.addEventListener("click", function() {
@@ -945,26 +987,6 @@ getBackUpload.addEventListener("click", function() {
 	menuPage.style.display = "block";
 	uploadPage.style.display = "none";
 });
-
-function openQuestBackOverlay() {
-    confirmationOverlay.style.display = "flex";
-
-    confirmationBox.innerHTML = `
-        <p style="font-size: 5vh;">Ukončit otázky?</p>
-        <button type="button" id="confirm3" class="buttonYes">Ano</button>
-        <button type="button" id="cancel3" class="buttonNo">Ne</button>
-    `;
-
-    document.getElementById("confirm3").onclick = function() {
-        questPage.style.display = "none";
-        fileLooker.style.display = "block";
-        confirmationOverlay.style.display = "none";
-    };
-
-    document.getElementById("cancel3").onclick = function() {
-        confirmationOverlay.style.display = "none";
-    };
-}
 
 getBackOnQuest.addEventListener("click", function(){
 	openQuestBackOverlay()
