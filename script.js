@@ -781,7 +781,7 @@ window.addEventListener("popstate", () => {
     }
 
     // Double back
-    if (now - lastPress <= doubleDelay) {
+    if (now - lastPress <= doubleDelay && menuPage.style.display == "block") {
         lastPress = 0;
         history.back();
         return;
