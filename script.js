@@ -764,33 +764,47 @@ function startTest(QTP) {
 }
 
 let lastPress = 0;
-const doubleDelay = 500;
+const doubleDelay = 1000;
 
+history.replaceState({ app: true }, "", location.href);
 history.pushState({ app: true }, "", location.href);
 
 window.addEventListener("popstate", () => {
     const now = Date.now();
 
-    // Overlay is open → close it
+    // ─────────────────────────
+    // Confirmation overlay open
+    // ─────────────────────────
     if (confirmationOverlay.style.display === "flex") {
+
         confirmationOverlay.style.display = "none";
+
         lastPress = 0;
 
+        // Re-create the app history entry
         history.pushState({ app: true }, "", location.href);
+
         return;
     }
 
-    // Double back ONLY on menu page → leave
+    // ─────────────────────────
+    // Double back on menu
+    // ─────────────────────────
     if (
         now - lastPress <= doubleDelay &&
-        menuPage.style.display === "block"
+        getComputedStyle(menuPage).display === "block"
     ) {
         lastPress = 0;
-        history.back();
+
+        // Go past our fake history entry
+        history.go(-1);
+
         return;
     }
 
+    // ─────────────────────────
     // First back
+    // ─────────────────────────
     lastPress = now;
 
     history.pushState({ app: true }, "", location.href);
@@ -817,7 +831,6 @@ function showToast() {
     }
 }
 
-
 function openQuestBackOverlay() {
 
     confirmationOverlay.style.display = "flex";
@@ -828,11 +841,10 @@ function openQuestBackOverlay() {
         <button type="button" id="cancel3" class="buttonNo">Ne</button>
     `;
 
-    // Give the overlay its own history entry
+    // Important: overlay gets its own history state
     history.pushState({ overlay: true }, "", location.href);
 
     document.getElementById("confirm3").onclick = function() {
-
         questPage.style.display = "none";
         fileLooker.style.display = "block";
         confirmationOverlay.style.display = "none";
@@ -841,7 +853,6 @@ function openQuestBackOverlay() {
     };
 
     document.getElementById("cancel3").onclick = function() {
-
         confirmationOverlay.style.display = "none";
 
         lastPress = 0;
