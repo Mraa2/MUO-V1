@@ -16,7 +16,7 @@ const checkButton = document.getElementById("check");
 const getBackOnQuest = document.getElementById("getBackToAll");
 const testingName = document.getElementById("TestingName");
 const questionHead = document.getElementById("questionHead");
-const answersHead = document.getElementById("answersTable")
+const answersHead = document.getElementById("answersTable");
 const questNext = document.getElementById("goToNextQu");
 const questLast = document.getElementById("goToLastQu");
 const showcase = document.getElementById("showcase");
@@ -35,7 +35,7 @@ const darkModeButton = document.getElementById("darkMode");
 const WithStar = document.getElementById("WithStar");
 const numberShowcase = document.getElementById("numberShowcase");
 const slider = document.getElementById("topicsSlider");
-const sliderContainer = document.querySelector(".sliderContainer")
+const sliderContainer = document.querySelector(".sliderContainer");
 
 const topics = {};
 const createdIds = {};
@@ -64,181 +64,520 @@ let darkModeSet = false;
 const curQPC = {};
 let curOQT;
 
-function calculateQueryState(query) {
-	topics[curTopicName].progressData = topics[curTopicName].progressData || {};
-	topics[curTopicName].progressData[query] = topics[curTopicName].progressData[query] || [];
+// ==========================================
+// NAVIGATION & HISTORY MANAGEMENT
+// ==========================================
+const historyLog = [];
 
-	const rep = topics[curTopicName].progressData[query];
+function logHistory(action, state = history.state) {
+    const entry = {
+        number: historyLog.length + 1,
+        action: action,
+        page: state?.page ?? "null",
+        historyLength: history.length,
+        overlayVisible: confirmationOverlay?.style.display === "flex",
+        questVisible: questPage?.style.display === "block",
+        currentState: history.state?.page ?? "null",
+        time: new Date().toLocaleTimeString()
+    };
 
-	let currentWeight = 0;
+    historyLog.push(entry);
 
-	let hasOne = false;
-	let countOfTrue = 0;
+    // Clears the console before rendering the new state table
+    console.clear();
 
-	for (let i = 0; i < rep.length; i++) {
-		hasOne = true;
-		const boolen = rep[i];
+    console.table(historyLog);
 
-		if (boolen == "true") {
-			currentWeight = currentWeight + 1;
-			countOfTrue += 1;
-		} else if (boolen == "false") {
-			currentWeight = currentWeight - 2;
-		}
-	}
+    console.log(
+        `%c ${action} → ${entry.page} `,
+        "background: black; color: white; padding: 3px;"
+    );
 
-	return [currentWeight, (countOfTrue/rep.length)];
+    console.log({
+        currentState: history.state,
+        historyLength: history.length,
+        overlayVisible: entry.overlayVisible,
+        questVisible: entry.questVisible
+    });
 }
 
-function createQuestionClasses(){
-	const QuestionsData = topics[curTopicName].allQuestions;
-	const DatabaseData = topics[curTopicName].progressData || [];
-	const StarsDataBABA = topics[curTopicName].starsData || [];
+const originalPushState = history.pushState;
 
-	Object.keys(curQPC).forEach(value => delete curQPC[value]);
+history.pushState = function (state, title, url) {
+    originalPushState.call(this, state, title, url);
+    logHistory("PUSH", state);
 
-	curQPC["all"] = QuestionsData;
-	curQPC["unknown"] = [];
-	curQPC["wrong"] = [];
-	curQPC["stars"] = [];
+    if (state?.page === "questPage") {
+        console.trace(">>> PUSH QUESTPAGE");
+    }
 
-	const invalidValues = ["all", "unknown", "wrong", "stars"];
+    if (state?.page === "overlay") {
+        console.trace(">>> PUSH OVERLAY");
+    }
+};
 
-	if (DatabaseData) {
-		for(let i = 0; i < QuestionsData.length; i++) {
-			const qData = QuestionsData[i]
-			const gotThis = qData["question"];
+const originalReplaceState = history.replaceState;
 
-			const cst = qData["topic"];
+history.replaceState = function (state, title, url) {
+    originalReplaceState.call(this, state, title, url);
+    logHistory("REPLACE", state);
 
-			if (cst && cst !== "" && !invalidValues.includes(cst)) {
-				curQPC[cst] = curQPC[cst] || [];
-				curQPC[cst].push(qData);
-			}
+    if (state?.page === "questPage") {
+        console.trace(">>> REPLACE QUESTPAGE");
+    }
+};
 
-			const currentQuery = DatabaseData[gotThis];
-			const currentQuery2 = StarsDataBABA[gotThis];
+let lastPress = 0;
+const doubleDelay = 1000;
+let questBackOverlayOpen = false;
+let allowQuestExit = false;
 
-			if (!currentQuery) {
-				curQPC["unknown"].push(qData);
-			} else {
-				const [weight] = calculateQueryState(gotThis);
+history.replaceState({ page: "menu" }, "", location.href);
 
-				if (weight < 0) {
-					curQPC["wrong"].push(qData);
-				}
-			}
+function navigateTo(pageName) {
+    if (pageName === "fileLooker" && (!curTopicName || !topics[curTopicName])) {
+        pageName = "menu";
+    }
 
-			if (currentQuery2) {
-				curQPC["stars"].push(qData);
-			}
-		}
-	}
+    menuPage.style.display = "none";
+    fileLooker.style.display = "none";
+    uploadPage.style.display = "none";
+    questPage.style.display = "none";
 
-	if (curQPC["unknown"].length == curQPC["all"].length) {
-		curQPC["unknown"].length = 0;
-	}
+    if (pageName === "menu") menuPage.style.display = "block";
+    if (pageName === "fileLooker") fileLooker.style.display = "block";
+    if (pageName === "uploadPage") uploadPage.style.display = "block";
+    if (pageName === "questPage") questPage.style.display = "block";
+}
 
-	const newStrng = [];
-	const buttonIds123 = [];
+function openPage(pageName) {
+    if (history.state?.page === pageName) {
+        navigateTo(pageName);
+        return;
+    }
 
-	const renamer = {
-		all: "Všechny otázky",
-		unknown: "Neznáme otázky",
-		wrong: "Potížisti",
-		stars: "S hvězdičkou",
-	};
+    history.pushState({ page: pageName }, "", location.href);
+    navigateTo(pageName);
+}
 
-	const newArray = [];
+function replacePage(pageName) {
+    history.replaceState({ page: pageName }, "", location.href);
+    navigateTo(pageName);
+}
 
-	newArray.push(curQPC["all"]);
-	newArray.push(curQPC["unknown"]);
-	newArray.push(curQPC["wrong"]);
-	newArray.push(curQPC["stars"])
+let questBackRestoring = false;
+let questOverlayFromBack = false;
+let isQuizActive = false; // Tracks active quiz state
 
-	const order = ["all", "unknown", "wrong", "stars"]
+window.addEventListener("popstate", (event) => {
+    const currentState = event.state;
+    logHistory("POP", currentState);
+    const now = Date.now();
 
-	const icons = {
-		all: "",
-		unknown: `<img src="icons/question-solid-full.svg" class="icon adaptSizeSecond" alt=""></img>`,
-		wrong: `<img src="icons/triangle-exclamation-solid-full.svg" class="icon adaptSizeSecond" alt=""></img>`,
-		stars: `<img src="icons/star-solid-full.svg" class="icon adaptSizeSecond" alt=""></img>`,
-	};
+    // =========================================
+    // QUEST - history restoration
+    // =========================================
+    if (questBackRestoring) {
+        questBackRestoring = false;
+        return;
+    }
 
-	let isPastZero = false;
+    // =========================================
+    // QUEST - intercept Back
+    // =========================================
+    if (questPage.style.display === "block" && !allowQuestExit) {
+        if (confirmationOverlay.style.display === "flex") {
+            confirmationOverlay.style.display = "none";
+            questOverlayFromBack = false;
 
-	for (let i = 0; i < newArray.length; i++) {
+            questBackRestoring = true;
+            history.forward();
+            return;
+        }
 
-		const key = order[i];
-		const data = curQPC[key];
-		if (data !== undefined && data.length > 0) {
-			if (i > 0) {
-				isPastZero = true;
-			}
-			newStrng.push(`<button type="button" data-qtp="${key}" id="${key}(FLIDF)" class="button01">
-				${icons[key]}
-				<div class="textInsideLookin">${renamer[key]}</div>
-			</button>`);
-			buttonIds123.push(`${key}(FLIDF)`);
-		}	
-	}
+        questOverlayFromBack = true;
+        questBackRestoring = true;
+        history.forward();
 
-	let done = false;
-	Object.keys(curQPC).forEach(value => {
-		const data = curQPC[value]
-		if (!newArray.includes(data) && data !== undefined && data.length > 0) {
-			if (!done) {
-				newStrng.push(
-					`<div class="subtopicAbove">Podle tématu</div>`
-				);
-				done = true;
-			}
-			newStrng.push(`<button type="button" data-qtp="${value}" id="${value}(FLIDF)" class="button01">
-				${value}
-			</button>`);
-			buttonIds123.push(`${value}(FLIDF)`);
-		}
-	});
+        openQuestBackOverlay();
+        return;
+    }
 
+    // =========================================
+    // NORMAL OVERLAYS
+    // =========================================
+    if (confirmationOverlay.style.display === "flex") {
+        confirmationOverlay.style.display = "none";
+        lastPress = 0;
 
-	if (newStrng.length > 0) {
-		const newString = newStrng.join("");
-		lkthrall.innerHTML = newString;
+        if (currentState?.page && currentState.page !== "overlay") {
+            navigateTo(currentState.page);
+        }
+        return;
+    }
 
-		requestAnimationFrame(() => {
-    		window.dispatchEvent(new Event("resize"));
-		});
+    // =========================================
+    // FORWARD TO AN OVERLAY
+    // =========================================
+    if (currentState?.page === "overlay") {
+        confirmationOverlay.style.display = "flex";
+        lastPress = 0;
+        return;
+    }
 
-		for (let i = 0; i < buttonIds123.length; i++) {
-			const rn123 = buttonIds123[i];
+    // =========================================
+    // MENU DOUBLE BACK
+    // =========================================
+    if (!currentState || currentState.page === "menu") {
+        if (currentState?.menuGuard) {
+            if (now - lastPress <= doubleDelay) {
+                history.go(-1);
+                return;
+            }
 
-			const newObject = document.getElementById(rn123);
-			if (i == 1 && isPastZero) {
-				newObject.style.marginTop = "4vh";
-			}
+            lastPress = now;
+            history.pushState({ page: "menu", menuGuard: true }, "", location.href);
+            navigateTo("menu");
+            return;
+        }
 
-			newObject.onclick = function(){
-				const QTP = newObject.dataset.qtp;
-				startTest(QTP);
-			};
-		}
-	}
+        lastPress = 0;
+        navigateTo("menu");
+        return;
+    }
+
+    // =========================================
+    // BLOCK FORWARD NAVIGATION TO INACTIVE QUEST
+    // =========================================
+    if (currentState?.page === "questPage" && !isQuizActive) {
+        history.back();
+        return;
+    }
+
+    // =========================================
+    // NORMAL PAGE NAVIGATION
+    // =========================================
+    if (currentState?.page) {
+        navigateTo(currentState.page);
+    }
+});
+
+// ==========================================
+// MODALS / OVERLAYS
+// ==========================================
+
+function openQuestBackOverlay() {
+    if (confirmationOverlay.style.display === "flex") {
+        return;
+    }
+
+    confirmationOverlay.style.display = "flex";
+
+    confirmationBox.innerHTML = `
+        <p style="font-size: 5vh;">Ukončit otázky?</p>
+        <button type="button" id="confirm3" class="buttonYes">Ano</button>
+        <button type="button" id="cancel3" class="buttonNo">Ne</button>
+    `;
+
+    document.getElementById("confirm3").onclick = function() {
+        confirmationOverlay.style.display = "none";
+        isQuizActive = false; // Deactivate quiz session
+        allowQuestExit = true;
+
+        history.back();
+
+        setTimeout(() => {
+            allowQuestExit = false;
+        }, 200);
+    };
+
+    document.getElementById("cancel3").onclick = function() {
+        confirmationOverlay.style.display = "none";
+    };
+}
+
+deleteTopicus.addEventListener("click", function() {
+    if (confirmationOverlay.style.display === "flex") {
+        return;
+    }
+
+    history.pushState({ page: "overlay" }, "", location.href);
+    confirmationOverlay.style.display = "flex";
+
+    confirmationBox.innerHTML = `
+        <p style="font-size: 5vh;">Odstranit téma?</p>
+        <button type="button" id="confirmOne" class="buttonYes">Ano</button>
+        <button type="button" id="cancelOne" class="buttonNo">Ne</button>
+    `;
+
+    document.getElementById("confirmOne").onclick = function() {
+        delete topics[curTopicName];
+
+        for (const kez in createdIds) {
+            if (createdIds[kez] == curTopicName) {
+                deleteZip(kez);
+                delete createdIds[kez];
+            }
+        }
+
+        curTopicName = undefined;
+        confirmationOverlay.style.display = "none";
+
+        history.back();
+    };
+
+    document.getElementById("cancelOne").onclick = function() {
+        confirmationOverlay.style.display = "none";
+        history.back();
+    };
+});
+
+deleteProgress123.addEventListener("click", function() {
+    if (confirmationOverlay.style.display === "flex") {
+        return;
+    }
+
+    history.pushState({ page: "overlay" }, "", location.href);
+    confirmationOverlay.style.display = "flex";
+
+    confirmationBox.innerHTML = `
+        <p style="font-size: 5vh;">Odstranit statistiky?</p>
+        <button type="button" id="confirmTwo" class="buttonYes">Ano</button>
+        <button type="button" id="cancelTwo" class="buttonNo">Ne</button>
+    `;
+
+    document.getElementById("confirmTwo").onclick = function() {
+        const idsdsfew = getCreatedIdFromName();
+
+        deleteProgress(idsdsfew);
+        delete topics[curTopicName].progressData;
+
+        confirmationOverlay.style.display = "none";
+
+        history.back();
+
+        createQuestionClasses();
+        createStatBar();
+    };
+
+    document.getElementById("cancelTwo").onclick = function() {
+        confirmationOverlay.style.display = "none";
+        history.back();
+    };
+});
+
+function startTest(QTP) {
+    if (confirmationOverlay.style.display === "flex") {
+        return;
+    }
+
+    history.pushState({ page: "overlay" }, "", location.href);
+    confirmationOverlay.style.display = "flex";
+
+    const includeTable = ["all", "unknown", "wrong", "stars"];
+    let format;
+
+    if (includeTable.includes(QTP)) {
+        format = `
+            <p style="font-size: 5vh;">Spustit otázky?</p>
+            <button type="button" id="confirmSix" class="buttonYes">Ano</button>
+            <button type="button" id="cancelSix" class="buttonNo">Ne</button>
+        `;
+    } else {
+        format = `
+            <p style="font-size: 5vh;">Spustit otázky?</p>
+            <div style="font-size: 2vh; margin-bottom:0.5vh; font-weight: bold;">
+                ${QTP} - statistiky
+            </div>
+            <div class="subTopicBar" id="subtopicBarStats"></div>
+            <button type="button" id="confirmSix" class="buttonYes">Ano</button>
+            <button type="button" id="cancelSix" class="buttonNo">Ne</button>
+        `;
+    }
+
+    confirmationBox.innerHTML = format;
+
+    const element = document.getElementById("subtopicBarStats");
+    if (element) {
+        createSubtopicStatBar(element, QTP);
+    }
+
+    document.getElementById("confirmSix").onclick = function() {
+        confirmationOverlay.style.display = "none";
+        curOQT = QTP;
+        openAUkNsWR();
+    };
+
+    document.getElementById("cancelSix").onclick = function() {
+        confirmationOverlay.style.display = "none";
+        history.back();
+    };
+}
+
+// ==========================================
+// BUSINESS LOGIC & QUIZ COMPUTATIONS
+// ==========================================
+
+function calculateQueryState(query) {
+    topics[curTopicName].progressData = topics[curTopicName].progressData || {};
+    topics[curTopicName].progressData[query] = topics[curTopicName].progressData[query] || [];
+
+    const rep = topics[curTopicName].progressData[query];
+    let currentWeight = 0;
+    let hasOne = false;
+    let countOfTrue = 0;
+
+    for (let i = 0; i < rep.length; i++) {
+        hasOne = true;
+        const boolen = rep[i];
+
+        if (boolen == "true") {
+            currentWeight = currentWeight + 1;
+            countOfTrue += 1;
+        } else if (boolen == "false") {
+            currentWeight = currentWeight - 2;
+        }
+    }
+
+    return [currentWeight, (countOfTrue / rep.length)];
+}
+
+function createQuestionClasses() {
+    const QuestionsData = topics[curTopicName].allQuestions;
+    const DatabaseData = topics[curTopicName].progressData || [];
+    const StarsDataBABA = topics[curTopicName].starsData || [];
+
+    Object.keys(curQPC).forEach(value => delete curQPC[value]);
+
+    curQPC["all"] = QuestionsData;
+    curQPC["unknown"] = [];
+    curQPC["wrong"] = [];
+    curQPC["stars"] = [];
+
+    const invalidValues = ["all", "unknown", "wrong", "stars"];
+
+    if (DatabaseData) {
+        for (let i = 0; i < QuestionsData.length; i++) {
+            const qData = QuestionsData[i];
+            const gotThis = qData["question"];
+            const cst = qData["topic"];
+
+            if (cst && cst !== "" && !invalidValues.includes(cst)) {
+                curQPC[cst] = curQPC[cst] || [];
+                curQPC[cst].push(qData);
+            }
+
+            const currentQuery = DatabaseData[gotThis];
+            const currentQuery2 = StarsDataBABA[gotThis];
+
+            if (!currentQuery) {
+                curQPC["unknown"].push(qData);
+            } else {
+                const [weight] = calculateQueryState(gotThis);
+                if (weight < 0) {
+                    curQPC["wrong"].push(qData);
+                }
+            }
+
+            if (currentQuery2) {
+                curQPC["stars"].push(qData);
+            }
+        }
+    }
+
+    if (curQPC["unknown"].length == curQPC["all"].length) {
+        curQPC["unknown"].length = 0;
+    }
+
+    const newStrng = [];
+    const buttonIds123 = [];
+
+    const renamer = {
+        all: "Všechny otázky",
+        unknown: "Neznáme otázky",
+        wrong: "Potížisti",
+        stars: "S hvězdičkou",
+    };
+
+    const newArray = [curQPC["all"], curQPC["unknown"], curQPC["wrong"], curQPC["stars"]];
+    const order = ["all", "unknown", "wrong", "stars"];
+
+    const icons = {
+        all: "",
+        unknown: `<img src="icons/question-solid-full.svg" class="icon adaptSizeSecond" alt=""></img>`,
+        wrong: `<img src="icons/triangle-exclamation-solid-full.svg" class="icon adaptSizeSecond" alt=""></img>`,
+        stars: `<img src="icons/star-solid-full.svg" class="icon adaptSizeSecond" alt=""></img>`,
+    };
+
+    let isPastZero = false;
+
+    for (let i = 0; i < newArray.length; i++) {
+        const key = order[i];
+        const data = curQPC[key];
+        if (data !== undefined && data.length > 0) {
+            if (i > 0) {
+                isPastZero = true;
+            }
+            newStrng.push(`<button type="button" data-qtp="${key}" id="${key}(FLIDF)" class="button01">
+                ${icons[key]}
+                <div class="textInsideLookin">${renamer[key]}</div>
+            </button>`);
+            buttonIds123.push(`${key}(FLIDF)`);
+        }
+    }
+
+    let done = false;
+    Object.keys(curQPC).forEach(value => {
+        const data = curQPC[value];
+        if (!newArray.includes(data) && data !== undefined && data.length > 0) {
+            if (!done) {
+                newStrng.push(`<div class="subtopicAbove">Podle tématu</div>`);
+                done = true;
+            }
+            newStrng.push(`<button type="button" data-qtp="${value}" id="${value}(FLIDF)" class="button01">
+                ${value}
+            </button>`);
+            buttonIds123.push(`${value}(FLIDF)`);
+        }
+    });
+
+    if (newStrng.length > 0) {
+        const newString = newStrng.join("");
+        lkthrall.innerHTML = newString;
+
+        requestAnimationFrame(() => {
+            window.dispatchEvent(new Event("resize"));
+        });
+
+        for (let i = 0; i < buttonIds123.length; i++) {
+            const rn123 = buttonIds123[i];
+            const newObject = document.getElementById(rn123);
+            if (i == 1 && isPastZero) {
+                newObject.style.marginTop = "4vh";
+            }
+
+            newObject.onclick = function() {
+                const QTP = newObject.dataset.qtp;
+                startTest(QTP);
+            };
+        }
+    }
 }
 
 const observer = new MutationObserver(() => {
     if (fileLooker.style.display === "block") {
         createQuestionClasses();
-        createStatBar()
+        createStatBar();
         let fileIdifc;
         for (const vkez in createdIds) {
-        	if (createdIds[vkez] == curTopicName) {
-        		fileIdifc = vkez;
-        		break;
-        	}
+            if (createdIds[vkez] == curTopicName) {
+                fileIdifc = vkez;
+                break;
+            }
         }
 
         saveProgress(fileIdifc, topics[curTopicName].progressData);
-        saveStars(fileIdifc, topics[curTopicName].starsData)
+        saveStars(fileIdifc, topics[curTopicName].starsData);
     }
 });
 
@@ -248,393 +587,354 @@ observer.observe(fileLooker, {
 });
 
 const obs2 = new MutationObserver(() => {
-	if (menuPage.style.display === "block") {
-		updateTopicsInMenu()
-		requestAnimationFrame(() => {
-    		window.dispatchEvent(new Event("resize"));
-		});
-	}
+    if (menuPage.style.display === "block") {
+        updateTopicsInMenu();
+        requestAnimationFrame(() => {
+            window.dispatchEvent(new Event("resize"));
+        });
+    }
 });
 
 obs2.observe(menuPage, {
-	attributes: true,
+    attributes: true,
     attributeFilter: ["style"]
 });
 
 function createBar(insertBar, answerObject) {
-	const array = [];
-	array.push(answerObject["right"]);
-	array.push(answerObject["unsure"]);
-	array.push(answerObject["wrong"]);
-	array.push(answerObject["unanswered"]);
+    const array = [answerObject["right"], answerObject["unsure"], answerObject["wrong"], answerObject["unanswered"]];
+    const order = ["right", "unsure", "wrong", "unanswered"];
+    const coloring = {
+        right: "green",
+        unsure: "orange",
+        wrong: "red",
+        unanswered: "lightgray"
+    };
 
-	const order = ["right", "unsure", "wrong", "unanswered"];
-	const coloring = {
-		right: "green",
-		unsure: "orange",
-		wrong: "red",
-		unanswered: "lightgray"
-	}
+    const newStringTable = [];
+    let lastPos = 0;
 
-	const newStringTable = [];
-	let lastPos = 0;
+    for (let i = 0; i < array.length; i++) {
+        const key = order[i];
+        const data = answerObject[key] || 0;
+        const newFormat = `<div id="" style="
+            background-color: ${coloring[key]};
+            position: absolute;
+            top: 50%;
+            left: ${lastPos}%;
+            width: ${data}%;
+            height: 95%;
+            transform: translateY(-50%);">
+        </div>`;
 
-	for (let i = 0; i < array.length; i++) {
-		const key = order[i];
-		const data = answerObject[key] || 0;
-		const newFormat = `<div id="" style="
-			background-color: ${coloring[key]};
-			position: absolute;
-			top: 50%;
-			left: ${lastPos}%;
-			width: ${data}%;
-			height: 95%;
-			transform: translateY(-50%);">
-		</div>`;
+        newStringTable.push(newFormat);
+        lastPos += data - 0.02;
+    }
 
-		newStringTable.push(newFormat);
-		lastPos += data-0.02;
-	}
-
-	const newString = newStringTable.join("");
-	insertBar.innerHTML = newString;
+    insertBar.innerHTML = newStringTable.join("");
 }
 
 function createStatBar() {
-	const perTopicData = topics[curTopicName].allQuestions;
-	const perTopicBasic = topics[curTopicName].progressData;
+    const perTopicData = topics[curTopicName].allQuestions;
+    const perTopicBasic = topics[curTopicName].progressData;
 
-	const answerObject = {};
-	let all = 0;
-	let unanswered = 0;
-	
-	if (perTopicBasic) {
-		let right = 0;
-		let wrong = 0;
-		let unsure = 0;
+    const answerObject = {};
+    let all = 0;
+    let unanswered = 0;
 
-		for (let i = 0; i < perTopicData.length; i++) {
-			const qData = perTopicData[i]
-			const gotThis = qData["question"];
+    if (perTopicBasic) {
+        let right = 0;
+        let wrong = 0;
+        let unsure = 0;
 
-			const currentQuery = perTopicBasic[gotThis];
+        for (let i = 0; i < perTopicData.length; i++) {
+            const qData = perTopicData[i];
+            const gotThis = qData["question"];
+            const currentQuery = perTopicBasic[gotThis];
 
-			if (!currentQuery) {
-				unanswered += 1;
-			} else {
-				const [weight, decimal] = calculateQueryState(gotThis);
-				if (weight < 0) {
-					if (decimal >= 0.5) {
-						unsure += 1;
-					} else {
-						wrong += 1;
-					}
-				} else {
-					right += 1;
-				}
-			}
-		}
+            if (!currentQuery) {
+                unanswered += 1;
+            } else {
+                const [weight, decimal] = calculateQueryState(gotThis);
+                if (weight < 0) {
+                    if (decimal >= 0.5) {
+                        unsure += 1;
+                    } else {
+                        wrong += 1;
+                    }
+                } else {
+                    right += 1;
+                }
+            }
+        }
 
-		all = right + wrong + unsure + unanswered;
+        all = right + wrong + unsure + unanswered;
 
-		answerObject["right"] = (right/all) * 100;
-		answerObject["wrong"] = (wrong/all) * 100;
-		answerObject["unsure"] = (unsure/all) * 100;
-		answerObject["unanswered"] = (unanswered/all) * 100;
-	} else {
-		all = perTopicData.length;
-		unanswered = perTopicData.length;
-		answerObject["unanswered"] = 100;
-	}
+        answerObject["right"] = (right / all) * 100;
+        answerObject["wrong"] = (wrong / all) * 100;
+        answerObject["unsure"] = (unsure / all) * 100;
+        answerObject["unanswered"] = (unanswered / all) * 100;
+    } else {
+        all = perTopicData.length;
+        unanswered = perTopicData.length;
+        answerObject["unanswered"] = 100;
+    }
 
-	createBar(showcaseBar, answerObject);
-
-	console.log(all)
-	numberShowcase.innerHTML = `${all - unanswered}/${all} zodpovězených otázek`;
+    createBar(showcaseBar, answerObject);
+    numberShowcase.innerHTML = `${all - unanswered}/${all} zodpovězených otázek`;
 }
 
-function openTopic(event){
-	const topicName = event.target.dataset.topic;
-	testingName.innerText = topicName;
-	curTopicName = topicName;
-	menuPage.style.display = "none";
-	fileLooker.style.display = "block";
+function openTopic(event) {
+    console.trace("openTopic CALLED");
+    const topicName = event.target.dataset.topic;
+    testingName.innerText = topicName;
+    curTopicName = topicName;
+    openPage("fileLooker");
 }
 
 const transfer = {
-	[true]: "green",
-	[false]: "red",
-}
+    [true]: "green",
+    [false]: "red",
+};
 
-function assignAnswer(event, everyBut){
-	const currentQ = event.target.dataset.question;
-	const currentCorrect = event.target.dataset.anscor;
-	const rn = event.target.id
+function assignAnswer(event, everyBut) {
+    const currentQ = event.target.dataset.question;
+    const currentCorrect = event.target.dataset.anscor;
+    const rn = event.target.id;
 
-	isCorrect[curTopicName] = isCorrect[curTopicName] || {};
+    isCorrect[curTopicName] = isCorrect[curTopicName] || {};
 
-	if (isCorrect[curTopicName][currentQ] !== undefined) {
-		console.log("This question has already been answered.");
-		return; // Stop execution
-	}
+    if (isCorrect[curTopicName][currentQ] !== undefined) {
+        return;
+    }
 
-	isCorrect[curTopicName][currentQ] = currentCorrect;
+    isCorrect[curTopicName][currentQ] = currentCorrect;
 
-	answerButRef[curTopicName] = answerButRef[curTopicName] || {};
-	answerButRef[curTopicName][currentQ] = answerButRef[curTopicName][currentQ] || {};
+    answerButRef[curTopicName] = answerButRef[curTopicName] || {};
+    answerButRef[curTopicName][currentQ] = answerButRef[curTopicName][currentQ] || {};
 
-	for (let i = 0; i < everyBut.length; i++){
-		const cur = everyBut[i];
-		const rn2 = cur.id
+    for (let i = 0; i < everyBut.length; i++) {
+        const cur = everyBut[i];
+        const rn2 = cur.id;
 
-		const table2 = rn2.split("(Letter_localtor)")
-		const curAns2 = table2[0];
+        const table2 = rn2.split("(Letter_localtor)");
+        const curAns2 = table2[0];
 
-		const isThisCor = cur.dataset.anscor;
-		if (isThisCor == "true"){
-			cur.style.backgroundColor = "green";
-			answerButRef[curTopicName][currentQ][curAns2] = "green";
-		} else if  (isThisCor == "false") {
-			cur.style.backgroundColor = "";
-			answerButRef[curTopicName][currentQ][curAns2] = "";
-		}
-		
-	}
+        const isThisCor = cur.dataset.anscor;
+        if (isThisCor == "true") {
+            cur.style.backgroundColor = "green";
+            answerButRef[curTopicName][currentQ][curAns2] = "green";
+        } else if (isThisCor == "false") {
+            cur.style.backgroundColor = "";
+            answerButRef[curTopicName][currentQ][curAns2] = "";
+        }
+    }
 
-	const table = rn.split("(Letter_localtor)");
-	const curAns = table[0];
+    const table = rn.split("(Letter_localtor)");
+    const curAns = table[0];
 
-	event.target.style.backgroundColor = transfer[currentCorrect];
-	answerButRef[curTopicName][currentQ][curAns] = transfer[currentCorrect];
+    event.target.style.backgroundColor = transfer[currentCorrect];
+    answerButRef[curTopicName][currentQ][curAns] = transfer[currentCorrect];
 
-	topics[curTopicName].progressData = topics[curTopicName].progressData || {};
-	topics[curTopicName].progressData[currentQ] = topics[curTopicName].progressData[currentQ] || [];
-	topics[curTopicName].progressData[currentQ].push(currentCorrect);
-	/*console.log(isCorrect);*/
+    topics[curTopicName].progressData = topics[curTopicName].progressData || {};
+    topics[curTopicName].progressData[currentQ] = topics[curTopicName].progressData[currentQ] || [];
+    topics[curTopicName].progressData[currentQ].push(currentCorrect);
 }
 
 function openAUkNsWR() {
-	questPage.style.display = "block";
-	fileLooker.style.display = "none";
-	curRandom[curOQT] = randomise(curQPC[curOQT]);
-	currentMax = curRandom[curOQT].length;
-	onIndex = 0;
-	isCorrect[curTopicName] = {};
-	answerButRef[curTopicName] = {};
-	const on = curRandom[curOQT][onIndex];
-	createQuestionButtons(on);
-	updateSlider();
-	questLast.style.opacity = 0.2;
-	questNext.style.opacity = 1;
+    isQuizActive = true;
+    replacePage("questPage");
+    curRandom[curOQT] = randomise(curQPC[curOQT]);
+    currentMax = curRandom[curOQT].length;
+    onIndex = 0;
+    isCorrect[curTopicName] = {};
+    answerButRef[curTopicName] = {};
+    const on = curRandom[curOQT][onIndex];
+    createQuestionButtons(on);
+    updateSlider();
+    questLast.style.opacity = 0.2;
+    questNext.style.opacity = 1;
 
-	if (currentMax == 1) {
-		questLast.style.opacity = 0.2;
-		questNext.style.opacity = 0.2;
-	}
+    if (currentMax == 1) {
+        questLast.style.opacity = 0.2;
+        questNext.style.opacity = 0.2;
+    }
 }
 
-function updatePageAll(count){
-	const on = curRandom[curOQT][onIndex + count];
+function updatePageAll(count) {
+    const on = curRandom[curOQT][onIndex + count];
+    const onPlus = curRandom[curOQT][onIndex + count + 1];
+    const onMinus = curRandom[curOQT][onIndex + count - 1];
 
-	const onPlus = curRandom[curOQT][onIndex + count + 1];
-	const onMinus = curRandom[curOQT][onIndex + count - 1];
-	if (on) {
-		questNext.style.opacity = 1;
-		questLast.style.opacity = 1;
-		onIndex = onIndex + count;
-		createQuestionButtons(on);
-		updateSlider();
+    if (on) {
+        questNext.style.opacity = 1;
+        questLast.style.opacity = 1;
+        onIndex = onIndex + count;
+        createQuestionButtons(on);
+        updateSlider();
 
-		if (!onPlus) {
-			questNext.style.opacity = 0.2;
-		}
-		if (!onMinus) {
-			questLast.style.opacity = 0.2;
-		}
-	}
-
-	
+        if (!onPlus) questNext.style.opacity = 0.2;
+        if (!onMinus) questLast.style.opacity = 0.2;
+    }
 }
 
-function updatePageByIndex(Index){
-	const on = curRandom[curOQT][Index];
+function updatePageByIndex(Index) {
+    const on = curRandom[curOQT][Index];
+    const onPlus = curRandom[curOQT][Index + 1];
+    const onMinus = curRandom[curOQT][Index - 1];
 
-	const onPlus = curRandom[curOQT][Index + 1];
-	const onMinus = curRandom[curOQT][Index - 1];
-	if (on) {
-		questNext.style.opacity = 1;
-		questLast.style.opacity = 1;
-		onIndex = Index;
-		createQuestionButtons(on);
-		updateSlider();
+    if (on) {
+        questNext.style.opacity = 1;
+        questLast.style.opacity = 1;
+        onIndex = Index;
+        createQuestionButtons(on);
+        updateSlider();
 
-		if (!onPlus) {
-			questNext.style.opacity = 0.2;
-		}
-		if (!onMinus) {
-			questLast.style.opacity = 0.2;
-		}
-	}
-
-	
+        if (!onPlus) questNext.style.opacity = 0.2;
+        if (!onMinus) questLast.style.opacity = 0.2;
+    }
 }
 
 function updateSlider() {
-	if (currentMax !== 1) {
-		slider.min = 0;
-		slider.max = Math.max(0, currentMax - 1);
-		slider.value = onIndex;
-		sliderContainer.style.display = "flex";
-	} else {
-		sliderContainer.style.display = "none";
-	}
+    if (currentMax !== 1) {
+        slider.min = 0;
+        slider.max = Math.max(0, currentMax - 1);
+        slider.value = onIndex;
+        sliderContainer.style.display = "flex";
+    } else {
+        sliderContainer.style.display = "none";
+    }
 }
 
 function numberToLetter(num) {
-  return String.fromCharCode(num + 64);
+    return String.fromCharCode(num + 64);
 }
 
 function createStar() {
-	topics[curTopicName].starsData = topics[curTopicName].starsData || {};
-	const on = curRandom[curOQT][onIndex]["question"];
+    topics[curTopicName].starsData = topics[curTopicName].starsData || {};
+    const on = curRandom[curOQT][onIndex]["question"];
 
-	if (topics[curTopicName].starsData[on] == true) {
-		WithStar.innerHTML = `<img src="icons/star-solid-full.svg" class="icon sizethree" alt=""></img>`;
-	} else {
-		WithStar.innerHTML = `<img src="icons/star-regular-full.svg" class="icon sizethree" alt=""></img>`;
-	}
+    if (topics[curTopicName].starsData[on] == true) {
+        WithStar.innerHTML = `<img src="icons/star-solid-full.svg" class="icon sizethree" alt=""></img>`;
+    } else {
+        WithStar.innerHTML = `<img src="icons/star-regular-full.svg" class="icon sizethree" alt=""></img>`;
+    }
 }
 
-function createQuestionButtons(on){
-	createStar();
-	const questionImage = on["question"];
+function createQuestionButtons(on) {
+    createStar();
+    const questionImage = on["question"];
+    const withoutMulti = questionImage.split("(multi)")[0];
+    const qS = withoutMulti.split("(imgsep)");
 
-	const withoutMulti = questionImage.split("(multi)")[0];
+    questionHead.innerText = qS[0];
+    const hasImage = qS[1];
 
-	const qS = withoutMulti.split("(imgsep)");
+    if (hasImage) {
+        const curURL = topics[curTopicName].images[hasImage];
+        if (curURL) {
+            imageFrame.innerHTML = `<img src="${curURL}" alt="">`;
+            questionFrame.classList.remove("no-image");
+        } else {
+            imageFrame.innerHTML = "";
+            questionFrame.classList.add("no-image");
+        }
+    } else {
+        imageFrame.innerHTML = "";
+        questionFrame.classList.add("no-image");
+    }
 
-	questionHead.innerText = qS[0];
+    const curQuestion = on["question"];
+    const rightAnswer = Number(on["answer"]);
 
-	const hasImage = qS[1]
+    const addTable = [];
+    const answerNameTable = [];
 
-	if (hasImage) {
-		/*console.log(hasImage)*/
-		const curURL = topics[curTopicName].images[hasImage];
-		/*console.log(curURL)*/
-		if (curURL) {
-    		imageFrame.innerHTML = `<img src="${curURL}" alt="">`;
-    		questionFrame.classList.remove("no-image");
-		} else {
-    		imageFrame.innerHTML = "";
-   		 	questionFrame.classList.add("no-image");
-		}
-	} else {
-		imageFrame.innerHTML = "";
-    	questionFrame.classList.add("no-image");
-	}
+    for (const key in on) {
+        const curNumber = Number(key);
+        if (Number.isNaN(curNumber)) {
+            continue;
+        } else {
+            const letter = numberToLetter(curNumber);
+            const answer = on[key];
+            const correct = curNumber == rightAnswer;
 
-	const curQuestion = on["question"];
-	const rightAnswer = Number(on["answer"]);
+            answerButRef[curTopicName] = answerButRef[curTopicName] || {};
+            answerButRef[curTopicName][curQuestion] = answerButRef[curTopicName][curQuestion] || {};
+            const alreadyColor = answerButRef[curTopicName][curQuestion][answer];
 
-	const addTable = [];
-	const answerNameTable = [];
-	for (const key in on){
-		const curNumber = Number(key);
-		if (Number.isNaN(curNumber)){
-			continue;
-		} else {
-			const letter = numberToLetter(curNumber);
-			const answer = on[key];
+            let format;
 
-			const correct = curNumber == rightAnswer;
+            if (alreadyColor !== undefined) {
+                format = `<button data-anscor="${correct}"
+                data-question="${curQuestion}"
+                id ="${answer}(Letter_localtor)"
+                type="button"
+                style="background-color: ${alreadyColor};"
+                >${letter}:${answer}</button>`;
 
-			answerButRef[curTopicName] = answerButRef[curTopicName] || {};
-			answerButRef[curTopicName][curQuestion] = answerButRef[curTopicName][curQuestion] || {};
-			const alreadyColor = answerButRef[curTopicName][curQuestion][answer];
+                answerNameTable.push(`${answer}(Letter_localtor)`);
+            }
 
-			let format;
+            if (!format) {
+                format = `<button data-anscor="${correct}"
+                data-question="${curQuestion}"
+                id ="${answer}(Letter_localtor)"
+                type="button"
+                >${letter}:${answer}</button>`;
 
-			if (alreadyColor !== undefined) {
-				format = `<button data-anscor="${correct}"
-				data-question="${curQuestion}"
-				id ="${answer}(Letter_localtor)"
-				type="button"
-				style="background-color: ${alreadyColor};"
-				>${letter}: ${answer}</button>`;
+                answerNameTable.push(`${answer}(Letter_localtor)`);
+            }
 
-				answerNameTable.push(`${answer}(Letter_localtor)`);
-			}
+            addTable.push(format);
+        }
+    }
 
-			if (!format) {
-				format = `<button data-anscor="${correct}"
-				data-question="${curQuestion}"
-				id ="${answer}(Letter_localtor)"
-				type="button"
-				>${letter}: ${answer}</button>`;
+    if (addTable.length > 0) {
+        answersHead.innerHTML = addTable.join("");
 
-				answerNameTable.push(`${answer}(Letter_localtor)`);
-			}
+        const buttons = [];
+        for (let i = 0; i < answerNameTable.length; i++) {
+            buttons.push(document.getElementById(answerNameTable[i]));
+        }
 
-			addTable.push(format);
-		}
-	}
-	if (addTable.length > 0){
-		const newString = addTable.join("");
-		answersHead.innerHTML = newString;
+        for (let i = 0; i < buttons.length; i++) {
+            const current = buttons[i];
+            const height = 50 / (buttons.length);
+            current.style.fontSize = `${height * 0.2}vh`;
 
-		const buttons = [];
-		for (let i = 0; i < answerNameTable.length; i++){
-			const rn = answerNameTable[i]
-			buttons.push(document.getElementById(rn));
-		}
-		/*console.log(buttons)*/
-		for (let i = 0; i < buttons.length; i ++){
-			const current = buttons[i];
-
-			const height = 50/(buttons.length);
-
-			current.style.fontSize = `${height * 0.2}vh`;
-
-			const everyBut = buttons.toSpliced(i, 1);
-
-			const currentQ = current.dataset.question;
-
-			current.onclick = function(event){
-				assignAnswer(event, everyBut);
-			}
-		}
-	}
+            const everyBut = buttons.toSpliced(i, 1);
+            current.onclick = function(event) {
+                assignAnswer(event, everyBut);
+            };
+        }
+    }
 }
 
-function updateTopicsInMenu(){
-	const stringsTable = [];
-	const nameTable = [];
-	console.log(topics);
-	for (const variable in topics){
-		stringsTable.push(`<button data-topic="${variable}"
-			class="button01";
-			style = "width: 35vh;
-			height: 10vh;
-			font-size: 5vh;"
-			id = "${variable}(%ID_locator%)">${variable}</button>`);
-		nameTable.push(`${variable}(%ID_locator%)`);
-	}
+function updateTopicsInMenu() {
+    const stringsTable = [];
+    const nameTable = [];
 
-	const newString = stringsTable.join("");
+    for (const variable in topics) {
+        stringsTable.push(`<button data-topic="${variable}"
+            class="button01";
+            style = "width: 35vh;
+            height: 10vh;
+            font-size: 5vh;"
+            id = "${variable}(\%ID_locator\%)">${variable}</button>`);
+        nameTable.push(`${variable}(%ID_locator%)`);
+    }
 
-	output.innerHTML = newString;
+    output.innerHTML = stringsTable.join("");
 
-	for (let i = 0; i < nameTable.length; i++){
-		const rn = nameTable[i];
-
-		document.getElementById(rn).addEventListener("click", openTopic);
-	}
+    for (let i = 0; i < nameTable.length; i++) {
+        document.getElementById(nameTable[i]).addEventListener("click", openTopic);
+    }
 }
 
 let checkIsGreen = false;
 
 function addNewTopic(create) {
-	fileInput.value = "";
+    fileInput.value = "";
 
     topics[curName] = {
         allQuestions: structuredClone(dataTable),
@@ -645,397 +945,208 @@ function addNewTopic(create) {
     };
     createdIds[currentId] = curName;
 
-	dataTable.length = 0;
-	subTpcsOfTpcs.length = 0;
-	Object.keys(imageTable).forEach(kez => delete imageTable[kez]);
+    dataTable.length = 0;
+    subTpcsOfTpcs.length = 0;
+    Object.keys(imageTable).forEach(kez => delete imageTable[kez]);
 
-	tablesCreated = false;
-	checkIsGreen = false;
+    tablesCreated = false;
+    checkIsGreen = false;
 
-	checkButton.innerHTML = `<img src="icons/circle-check-regular-full.svg" id="hablahabla" class="icon sizeseven red"></img>`
+    checkButton.innerHTML = `<img src="icons/circle-check-regular-full.svg" id="hablahabla" class="icon sizeseven red"></img>`;
 
-	if (!create) {
-		console.log(createdFile, currentId);
-		saveZipFile(createdFile, currentId);
-	}
+    if (!create) {
+        saveZipFile(createdFile, currentId);
+    }
 
-	uploadPage.style.display = "none";
-	menuPage.style.display = "block";
+    replacePage("menu");
 }
 
-checkButton.addEventListener("click", function(){
-	if (checkIsGreen) {
-		addNewTopic()
-	}
+checkButton.addEventListener("click", function() {
+    if (checkIsGreen) {
+        addNewTopic();
+    }
 });
 
-function isCheckAvailable(){
-	if ((tablesCreated) && (curName) && (!topics[curName]) && (curName !== "")) {
-		checkIsGreen = true;
-
-		checkButton.innerHTML = `<img src="icons/circle-check-regular-full.svg" id="hablahabla" class="icon sizeseven green"></img>`
-	} else {
-		checkIsGreen = false;
-
-		checkButton.innerHTML = `<img src="icons/circle-check-regular-full.svg" id="hablahabla" class="icon sizeseven red"></img>`
-	}
+function isCheckAvailable() {
+    if ((tablesCreated) && (curName) && (!topics[curName]) && (curName !== "")) {
+        checkIsGreen = true;
+        checkButton.innerHTML = `<img src="icons/circle-check-regular-full.svg" id="hablahabla" class="icon sizeseven green"></img>`;
+    } else {
+        checkIsGreen = false;
+        checkButton.innerHTML = `<img src="icons/circle-check-regular-full.svg" id="hablahabla" class="icon sizeseven red"></img>`;
+    }
 }
 
 function createSubtopicStatBar(element, QTP) {
-	const currentQueryData = curQPC[QTP];
-	const checkData = topics[curTopicName].progressData;
+    const currentQueryData = curQPC[QTP];
+    const checkData = topics[curTopicName].progressData;
+    const answerObject = {};
 
-	const answerObject = {};
+    if (checkData) {
+        let all = 0;
+        let unanswered = 0;
+        let right = 0;
+        let wrong = 0;
+        let unsure = 0;
 
-	if (checkData) {
-		let all = 0;
-		let unanswered = 0;
-		let right = 0;
-		let wrong = 0;
-		let unsure = 0;
+        for (let i = 0; i < currentQueryData.length; i++) {
+            const qData = currentQueryData[i];
+            const gotThis = qData["question"];
+            const currentQuery = checkData[gotThis];
 
-		for (let i = 0; i < currentQueryData.length; i++) {
-			const qData = currentQueryData[i]
-			const gotThis = qData["question"];
+            if (!currentQuery) {
+                unanswered += 1;
+            } else {
+                const [weight, decimal] = calculateQueryState(gotThis);
+                if (weight < 0) {
+                    if (decimal >= 0.5) {
+                        unsure += 1;
+                    } else {
+                        wrong += 1;
+                    }
+                } else {
+                    right += 1;
+                }
+            }
+        }
 
-			const currentQuery = checkData[gotThis];
+        all = right + wrong + unsure + unanswered;
 
-			if (!currentQuery) {
-				unanswered += 1;
-			} else {
-				const [weight, decimal] = calculateQueryState(gotThis);
-				if (weight < 0) {
-					if (decimal >= 0.5) {
-						unsure += 1;
-					} else {
-						wrong += 1;
-					}
-				} else {
-					right += 1;
-				}
-			}
-		}
-
-		all = right + wrong + unsure + unanswered;
-
-		answerObject["right"] = (right/all) * 100;
-		answerObject["wrong"] = (wrong/all) * 100;
-		answerObject["unsure"] = (unsure/all) * 100;
-		answerObject["unanswered"] = (unanswered/all) * 100;
-	} else {
-		answerObject["unanswered"] = 100;
-	}
-
-	createBar(element, answerObject);
-}
-
-function startTest(QTP) {
-	confirmationOverlay.style.display = "flex";	
-
-	const includeTable = ["all", "unknown", "wrong", "stars"];
-
-	let format;
-	if (includeTable.includes(QTP)) {
-		format = `<p style="font-size: 5vh;">Spustit otázky?</p>
-		<button type="button" id="confirmSix" class="buttonYes">Ano</button>
-		<button type="button" id="cancelSix" class="buttonNo">Ne</button>`;
-	} else {
-		format = `<p style="font-size: 5vh;">Spustit otázky?</p>
-		<div style="font-size: 2vh; margin-bottom:0.5vh; font-weight: bold;">${QTP} - statistiky</div>
-		<div class="subTopicBar" id="subtopicBarStats"></div>
-		<button type="button" id="confirmSix" class="buttonYes">Ano</button>
-		<button type="button" id="cancelSix" class="buttonNo">Ne</button>`;
-	}
-	confirmationBox.innerHTML = format;
-
-	const element = document.getElementById("subtopicBarStats")
-	if (element) {
-		createSubtopicStatBar(element, QTP);
-	}
-
-	document.getElementById("confirmSix").onclick = function() {
-		curOQT = QTP;
-		openAUkNsWR();
-		confirmationOverlay.style.display = "none";
-	}
-	document.getElementById("cancelSix").onclick = function() {
-		confirmationOverlay.style.display = "none";
-	}
-}
-
-let lastPress = 0;
-const doubleDelay = 1000;
-
-history.replaceState({ app: true }, "", location.href);
-history.pushState({ app: true }, "", location.href);
-
-window.addEventListener("popstate", () => {
-    const now = Date.now();
-
-    // ─────────────────────────
-    // Confirmation overlay open
-    // ─────────────────────────
-    if (confirmationOverlay.style.display === "flex") {
-
-        confirmationOverlay.style.display = "none";
-
-        lastPress = 0;
-
-        // Re-create the app history entry
-        history.pushState({ app: true }, "", location.href);
-
-        return;
+        answerObject["right"] = (right / all) * 100;
+        answerObject["wrong"] = (wrong / all) * 100;
+        answerObject["unsure"] = (unsure / all) * 100;
+        answerObject["unanswered"] = (unanswered / all) * 100;
+    } else {
+        answerObject["unanswered"] = 100;
     }
 
-    // ─────────────────────────
-    // Double back on menu
-    // ─────────────────────────
-    if (
-        now - lastPress <= doubleDelay &&
-        getComputedStyle(menuPage).display === "block"
-    ) {
-        lastPress = 0;
-
-        // Go past our fake history entry
-        history.go(-1);
-
-        return;
-    }
-
-    // ─────────────────────────
-    // First back
-    // ─────────────────────────
-    lastPress = now;
-
-    history.pushState({ app: true }, "", location.href);
-
-    showToast();
-});
-
-
-function showToast() {
-
-    if (fileLooker.style.display === "block") {
-
-        fileLooker.style.display = "none";
-        menuPage.style.display = "block";
-
-    } else if (uploadPage.style.display === "block") {
-
-        uploadPage.style.display = "none";
-        menuPage.style.display = "block";
-
-    } else if (questPage.style.display === "block") {
-
-        openQuestBackOverlay();
-    }
+    createBar(element, answerObject);
 }
 
-function openQuestBackOverlay() {
-
-    confirmationOverlay.style.display = "flex";
-
-    confirmationBox.innerHTML = `
-        <p style="font-size: 5vh;">Ukončit otázky?</p>
-        <button type="button" id="confirm3" class="buttonYes">Ano</button>
-        <button type="button" id="cancel3" class="buttonNo">Ne</button>
-    `;
-
-    // Important: overlay gets its own history state
-    history.pushState({ overlay: true }, "", location.href);
-
-    document.getElementById("confirm3").onclick = function() {
-        questPage.style.display = "none";
-        fileLooker.style.display = "block";
-        confirmationOverlay.style.display = "none";
-
-        lastPress = 0;
-    };
-
-    document.getElementById("cancel3").onclick = function() {
-        confirmationOverlay.style.display = "none";
-
-        lastPress = 0;
-    };
-}
-
-deleteTopicus.addEventListener("click", function() {
-	confirmationOverlay.style.display = "flex";
-
-	confirmationBox.innerHTML = `
-		<p style="font-size: 5vh;">Odstranit téma?</p>
-		<button type="button" id="confirmOne" class="buttonYes">Ano</button>
-		<button type="button" id="cancelOne" class="buttonNo">Ne</button>
-	`;
-
-	document.getElementById("confirmOne").onclick = function() {
-		delete topics[curTopicName]
-
-		for (const kez in createdIds) {
-			if (createdIds[kez] == curTopicName) {
-				deleteZip(kez);
-				delete createdIds[kez];
-			}
-		}
-
-		curTopicName = undefined;
-
-		fileLooker.style.display = "none";
-		menuPage.style.display = "block";
-
-		confirmationOverlay.style.display = "none";
-
-		console.log(topics, createdIds)
-
-	}
-	document.getElementById("cancelOne").onclick = function() {
-		confirmationOverlay.style.display = "none";
-	}
-});
-
-deleteProgress123.addEventListener("click", function() {
-	confirmationOverlay.style.display = "flex";
-
-	confirmationBox.innerHTML = `
-		<p style="font-size: 5vh;">Odstranit statistiky?</p>
-		<button type="button" id="confirmTwo" class="buttonYes">Ano</button>
-		<button type="button" id="cancelTwo" class="buttonNo">Ne</button>
-	`;
-
-	document.getElementById("confirmTwo").onclick = function() {
-		const idsdsfew = getCreatedIdFromName();
-
-		deleteProgress(idsdsfew)
-		delete topics[curTopicName].progressData
-
-		fileLooker.style.display = "none";
-		fileLooker.style.display = "block";
-		confirmationOverlay.style.display = "none";
-	}
-	document.getElementById("cancelTwo").onclick = function() {
-		confirmationOverlay.style.display = "none";
-	}
-});
+// ==========================================
+// DOM LISTENERS & EVENT HANDLERS
+// ==========================================
 
 exportProgressFile.addEventListener("click", function() {
-	const currentBasicData = topics[curTopicName].progressData;
-	const currentStarData = topics[curTopicName].starsData;
-	const gameId = getCreatedIdFromName();
+    const currentBasicData = topics[curTopicName].progressData;
+    const currentStarData = topics[curTopicName].starsData;
+    const gameId = getCreatedIdFromName();
 
-	const newObject = {
-		fileId: gameId,
-		progress: currentBasicData,
-		stars: currentStarData
-	};
+    const newObject = {
+        fileId: gameId,
+        progress: currentBasicData,
+        stars: currentStarData
+    };
 
-	const jsonString = JSON.stringify(newObject, null, 2);
+    const jsonString = JSON.stringify(newObject, null, 2);
+    const blob = new Blob([jsonString], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
 
-	const blob = new Blob([jsonString], {
-		type: "application/json"
-	})
-
-	const url = URL.createObjectURL(blob);
-
-	const link = document.createElement("a");
+    const link = document.createElement("a");
     link.href = url;
     link.download = `progress_${curTopicName}.json`;
-
     link.click();
 
     URL.revokeObjectURL(url);
 });
 
 WithStar.addEventListener("click", function() {
-	topics[curTopicName].starsData = topics[curTopicName].starsData || {};
-	const on = curRandom[curOQT][onIndex]["question"];
+    topics[curTopicName].starsData = topics[curTopicName].starsData || {};
+    const on = curRandom[curOQT][onIndex]["question"];
 
-	if (topics[curTopicName].starsData[on] == true) {
-		topics[curTopicName].starsData[on] = false;
-		WithStar.innerHTML = `<img src="icons/star-regular-full.svg" class="icon sizethree" alt=""></img>`;
-	} else {
-		topics[curTopicName].starsData[on] = true;
-		WithStar.innerHTML = `<img src="icons/star-solid-full.svg" class="icon sizethree" alt=""></img>`;
-	}
+    if (topics[curTopicName].starsData[on] == true) {
+        topics[curTopicName].starsData[on] = false;
+        WithStar.innerHTML = `<img src="icons/star-regular-full.svg" class="icon sizethree" alt=""></img>`;
+    } else {
+        topics[curTopicName].starsData[on] = true;
+        WithStar.innerHTML = `<img src="icons/star-solid-full.svg" class="icon sizethree" alt=""></img>`;
+    }
 });
 
 importProgressFile.addEventListener("click", function() {
-	importProgressInput.click();
+    importProgressInput.click();
 });
 
-importProgressInput.addEventListener("change", async function() {
-	const file = importProgressInput.files[0];
+importProgressInput.addEventListener("change", async function(event) {
+    const file = importProgressInput.files[0];
 
-	if (!file) {
-		return;
-	}
+    if (!file) return;
 
-	const fileName = file.name.toLowerCase();
-  	if (!fileName.endsWith('.json')) {
-    	alert("Chyba: Vybraný soubor nemá příponu .json!");
-    	event.target.value = "";
-   		return;
-  	}
+    const fileName = file.name.toLowerCase();
+    if (!fileName.endsWith('.json')) {
+        alert("Chyba: Vybraný soubor nemá příponu .json!");
+        event.target.value = "";
+        return;
+    }
 
-  	const text = await file.text();
-  	const obj = JSON.parse(text);
+    const text = await file.text();
+    const obj = JSON.parse(text);
+    const gameId = getCreatedIdFromName();
 
-  	const gameId = getCreatedIdFromName();
+    if (gameId !== obj.fileId) {
+        alert("Chyba: Vybraný soubor nepatří k tomuto tématu!");
+        return;
+    }
 
-  	if (gameId !== obj.fileId) {
-  		alert("Chyba: Vybraný soubor nepatří k tomuto tématu!");
-  		return;
-  	};
-
-  	topics[curTopicName].progressData = obj.progress;
-	topics[curTopicName].starsData = obj.stars;
-  	fileLooker.style.display = "none";
-  	fileLooker.style.display = "block";
+    topics[curTopicName].progressData = obj.progress;
+    topics[curTopicName].starsData = obj.stars;
+    fileLooker.style.display = "none";
+    fileLooker.style.display = "block";
 });
 
 getBackFile.addEventListener("click", function() {
-	menuPage.style.display = "block";
-	fileLooker.style.display = "none";
+    if (window.history.length > 1 && history.state?.page !== "menu") {
+        history.back();
+    } else {
+        openPage("menu");
+    }
 });
 
 getBackUpload.addEventListener("click", function() {
-	menuPage.style.display = "block";
-	uploadPage.style.display = "none";
+    if (window.history.length > 1 && history.state?.page !== "menu") {
+        history.back();
+    } else {
+        openPage("menu");
+    }
 });
 
-getBackOnQuest.addEventListener("click", function(){
-	openQuestBackOverlay()
+getBackOnQuest.addEventListener("click", function() {
+    openQuestBackOverlay();
 });
 
-addButton.addEventListener("click", function(){
-	menuPage.style.display = "none";
-	uploadPage.style.display = "block";
+addButton.addEventListener("click", function() {
+    openPage("uploadPage");
 });
 
 textInput.addEventListener("input", function(event) {
-	curName = event.target.value;
-	isCheckAvailable();
+    curName = event.target.value;
+    isCheckAvailable();
 });
 
-questNext.addEventListener("click", function(){
-	updatePageAll(+1);
+questNext.addEventListener("click", function() {
+    updatePageAll(+1);
 });
 
-questLast.addEventListener("click", function(){
-	updatePageAll(-1);
+questLast.addEventListener("click", function() {
+    updatePageAll(-1);
 });
 
 slider.addEventListener("input", () => {
     updatePageByIndex(Number(slider.value));
 });
 
-fileOverLay.addEventListener("click", function(){
-	fileInput.click();
+fileOverLay.addEventListener("click", function() {
+    fileInput.click();
 });
 
-darkMode.addEventListener("click", function() {
-	darkModeSet = !darkModeSet;
-	setDarkMode();
+darkModeButton.addEventListener("click", function() {
+    darkModeSet = !darkModeSet;
+    setDarkMode();
 });
+
+// ==========================================
+// FILE PARSING & ZIP STORAGE
+// ==========================================
 
 async function getFileKey(file) {
     const buffer = await file.arrayBuffer();
@@ -1049,209 +1160,183 @@ async function getFileKey(file) {
 async function loadAZipFile(file, create) {
     try {
         const zip = await JSZip.loadAsync(file);
-			/*console.log("Zip loaded successfully")*/
+        const promises = [];
 
-			const promises = [];
+        if (tablesCreated) {
+            dataTable.length = 0;
+            Object.keys(imageTable).forEach(kez => delete imageTable[kez]);
+        }
 
-		if (tablesCreated) {
-			dataTable.length = 0;
-			Object.keys(imageTable).forEach(kez => delete imageTable[kez]);
-		}
+        const idFile = zip.file("FileId.txt");
 
-		const idFile = zip.file("FileId.txt");
+        if (!idFile) {
+            alert("Soubor neobsahuje identifikátor ve formátu FileId.txt!");
+            return;
+        }
 
-		if (!idFile) {
-			alert("Soubor neobsahuje identifikátor ve formátu FileId.txt!");
-			return;
-		}
+        const gameId = (await idFile.async("text")).trim();
 
-		const gameId = (await idFile.async("text")).trim();
+        if (createdIds[gameId]) {
+            alert("Soubor již nahrán!");
+            return;
+        }
 
-		if (createdIds[gameId]) {
-			alert("Soubor již nahrán!");
-			return;
-		}
+        const savedProgress = await loadProgress(gameId);
 
-		console.log("game id;", gameId);
+        if (savedProgress) {
+            if (!create) {
+                alert("Byly nalezeny stávající statistiky!");
+            }
+            delete savedProgress.gameId;
+            progress = savedProgress;
+        } else {
+            progress = undefined;
+        }
 
-		const savedProgress = await loadProgress(gameId);
+        const savedStars = await loadStars(gameId);
 
-		if (savedProgress) {
-			if (!create) {
-				alert("Byly nalezeny stávající statistiky!");
-			}
-    		delete savedProgress.gameId;
-    		progress = savedProgress;
+        if (savedStars) {
+            staring = savedStars.stars;
+        } else {
+            staring = undefined;
+        }
 
-		} else {
-   			console.log("No previous progress.");
-   			progress = undefined;
-   		}
+        zip.forEach(function (relativePath, zipEntry) {
+            if (!zipEntry.dir) {
+                if ((relativePath.toLowerCase().endsWith('.csv')) && (relativePath.toLowerCase() == "questions.csv")) {
+                    promises.push(createDataTable(zipEntry));
+                } else if (relativePath.startsWith("pictures/")) {
+                    if (relativePath.toLowerCase().endsWith(".jpg") || relativePath.toLowerCase().endsWith(".png")) {
+                        promises.push(createUrl(zipEntry));
+                    }
 
-   		const savedStars = await loadStars(gameId);
+                    async function createUrl(zipEntry) {
+                        const blob = await zipEntry.async("blob");
+                        const imgURL = URL.createObjectURL(blob);
+                        const name = relativePath.replace("pictures/", "");
+                        imageTable[name] = imgURL;
+                    }
+                }
+            }
+        });
 
-   		if (savedStars) {
-   			staring = savedStars.stars
-   		} else {
-   			staring = undefined;
-   		}
+        await Promise.all(promises);
 
-		zip.forEach(function (relativePath, zipEntry) {
-        	/*console.log("File:", relativePath);*/
-        	if (!zipEntry.dir) {
-        		if ((relativePath.toLowerCase().endsWith('.csv')) && (relativePath.toLowerCase() == "questions.csv")) {
-        			promises.push(createDataTable(zipEntry))
-        		} else if (relativePath.startsWith("pictures/")) {
-        			if (relativePath.toLowerCase().endsWith(".jpg")) {
-        				promises.push(createUrl(zipEntry))
-        			} else if (relativePath.toLowerCase().endsWith(".png")) {
-        				promises.push(createUrl(zipEntry))
-        			}
-        			
-        			async function createUrl(zipEntry){
-        				const blob = await zipEntry.async("blob");
+        if (dataTable.length > 0) {
+            tablesCreated = true;
+            currentId = gameId;
+            createdFile = file;
+            isCheckAvailable();
+            if (create) {
+                isCheckAvailable();
+                addNewTopic(create);
+            }
+        } else {
+            alert("Otázky nebyly nalezeny, nebo jsou ve špatném formátu");
+        }
 
-        				const imgURL = URL.createObjectURL(blob);
-
-        				const name = relativePath.replace("pictures/", "");
-        					/*showcase.innerHTML =
-        					`<img src="${imgURL}">`;*/
-
-        				imageTable[name] = imgURL;
-        			}
-        		}
-        	}
-     	});
-
-     	await Promise.all(promises);
-
-     	if (dataTable.length > 0) {
-     		console.log("ALL PROMISES FINISHED");
-			tablesCreated = true;
-			currentId = gameId;
-			createdFile = file;
-			isCheckAvailable();
-			if (create) {
-				isCheckAvailable();
-				addNewTopic(create);
-			}
-     	} else {
-     		alert("Otázky nebyly nalezeny, nebo jsou ve špatném formátu");
-     	}
-
-	} catch (err) {
-    	console.error("Error reading zip:", err);
-		dataTable.length = 0;
-		Object.keys(imageTable).forEach(kez => delete imageTable[kez]);
+    } catch (err) {
+        console.error("Error reading zip:", err);
+        dataTable.length = 0;
+        Object.keys(imageTable).forEach(kez => delete imageTable[kez]);
     }
 }
 
-fileInput.addEventListener("change",function () {
-	const file = fileInput.files[0];
+fileInput.addEventListener("change", function () {
+    const file = fileInput.files[0];
 
-	if (!file) {
-		return;
-	}
+    if (!file) return;
 
-	const fileName = file.name.toLowerCase();
-  	if (!fileName.endsWith('.zip')) {
-    	alert("Chyba: Vybraný soubor nemá příponu .zip!");
-    	event.target.value = "";
-   		return;
-  	}
+    const fileName = file.name.toLowerCase();
+    if (!fileName.endsWith('.zip')) {
+        alert("Chyba: Vybraný soubor nemá příponu .zip!");
+        fileInput.value = "";
+        return;
+    }
 
-  	loadAZipFile(file)
+    loadAZipFile(file);
 });
 
 async function createDataTable(zipEntry) {
-	const csvFile = await zipEntry.async("string");
+    const csvFile = await zipEntry.async("string");
 
-	if (!csvFile) {
-		return;
-	}
+    if (!csvFile) return;
 
-	Papa.parse(csvFile, {
-		/*encoding: "UTF-8"*/
-		complete: function (result) {
-			const csvTable = result.data;
+    Papa.parse(csvFile, {
+        complete: function (result) {
+            const csvTable = result.data;
+            let currentTopic = "";
+            const oneCreated = [];
 
-			let currentTopic = "";
-			const oneCreated = [];
+            for (let i = 0; i < csvTable.length; i++) {
+                const rn = csvTable[i];
 
-			for (let i = 0; i < csvTable.length; i++) {
-				const rn = csvTable[i];
+                if (!rn) {
+                    continue;
+                } else if (rn[0].includes("(topic)")) {
+                    currentTopic = rn[0].split("(topic)")[1];
+                    continue;
+                }
 
-				if (!rn) {
-					continue;
-				} else if (rn[0].includes("(topic)")) {
-					currentTopic = rn[0].split("(topic)")[1];
-					continue;
-				}
-				const arrayLength = rn.length;
-				
-				const current = {};
-				let skip = false;
-				for (let k = 0; k < arrayLength; k++) {
-					if (rn[k] === ""){
-						skip = true;
-						break;
-					}
-					if (k == 0){
-						current["question"] = rn[k];
-					} else if ( k === arrayLength - 1){
-						const curRn = Number(rn[k]);
+                const arrayLength = rn.length;
+                const current = {};
+                let skip = false;
 
-						if (Number.isNaN(curRn)){
-							skip = true;
-							break
-						} else {
-							if ((curRn <= 0) || (curRn >= arrayLength - 1)){
-								skip = true;
-								break
-							} else {
-								current["answer"] = rn[k];
-							}
-						}
-					} else {
-						current[k] = rn[k];
-					}
-				}
+                for (let k = 0; k < arrayLength; k++) {
+                    if (rn[k] === "") {
+                        skip = true;
+                        break;
+                    }
+                    if (k == 0) {
+                        current["question"] = rn[k];
+                    } else if (k === arrayLength - 1) {
+                        const curRn = Number(rn[k]);
 
-				if (!skip && currentTopic !== "" && currentTopic !== undefined && currentTopic !== null)  {
-					current["topic"] = currentTopic;
-					if (!oneCreated.includes(currentTopic)) {
-						oneCreated.push(currentTopic);
-						subTpcsOfTpcs.push(currentTopic);
-					}
-					
-				}
+                        if (Number.isNaN(curRn)) {
+                            skip = true;
+                            break;
+                        } else {
+                            if ((curRn <= 0) || (curRn >= arrayLength - 1)) {
+                                skip = true;
+                                break;
+                            } else {
+                                current["answer"] = rn[k];
+                            }
+                        }
+                    } else {
+                        current[k] = rn[k];
+                    }
+                }
 
-				if (!skip) {
-					dataTable.push(current);
-				}
-			}
-			/*console.log(dataTable);*/
-		}
-	});
+                if (!skip && currentTopic !== "" && currentTopic !== undefined && currentTopic !== null) {
+                    current["topic"] = currentTopic;
+                    if (!oneCreated.includes(currentTopic)) {
+                        oneCreated.push(currentTopic);
+                        subTpcsOfTpcs.push(currentTopic);
+                    }
+                }
+
+                if (!skip) {
+                    dataTable.push(current);
+                }
+            }
+        }
+    });
 }
 
-function randomise(questions){
-	const randomised = randomiseQuestions(questions);
-	const fullyRand = shuffleAnswersInsideQuestions(randomised);
-
-	return fullyRand;
+function randomise(questions) {
+    const randomised = randomiseQuestions(questions);
+    return shuffleAnswersInsideQuestions(randomised);
 }
 
-function randomiseQuestions(questions){ 
+function randomiseQuestions(questions) {
     const copy = structuredClone(questions);
-    for (let i = copy.length - 1; i > 0; i--) { 
-        const j = Math.floor(Math.random() * (i + 1)); 
-
+    for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
         const temp = copy[i];
-        copy[i] = copy[j]; 
+        copy[i] = copy[j];
         copy[j] = temp;
-    } 
-    
+    }
     return copy;
 }
 
@@ -1272,321 +1357,201 @@ function shuffleAnswersInsideQuestions(questions) {
         }
 
         for (let i = 0; i < answers.length; i++) {
-            const newKey = String(i + 1); 
+            const newKey = String(i + 1);
             q[newKey] = answers[i];
-            
+
             if (answers[i] === correctText) {
                 q.answer = newKey;
             }
         }
     }
-    
+
     return copy;
 }
 
+// ==========================================
+// INDEXEDDB DATABASE OPERATIONS
+// ==========================================
+
 const dbPromise = new Promise((resolve, reject) => {
+    const request = indexedDB.open("QuizApp", 4);
 
-	const request = indexedDB.open("QuizApp", 4);
+    request.onupgradeneeded = (event) => {
+        const db = event.target.result;
 
-	request.onupgradeneeded = (event) => {
-		const db = event.target.result;
+        if (!db.objectStoreNames.contains("progress")) {
+            db.createObjectStore("progress", { keyPath: "gameId" });
+        }
 
-		if (!db.objectStoreNames.contains("progress")) {
-			db.createObjectStore("progress", {
-                keyPath: "gameId"
-            });
-		}
+        if (!db.objectStoreNames.contains("StarS")) {
+            db.createObjectStore("StarS", { keyPath: "fileId" });
+        }
 
-		if (!db.objectStoreNames.contains("StarS")) {
-			db.createObjectStore("StarS", {
-				keyPath:"fileId"
-			});
-		}
+        if (!db.objectStoreNames.contains("Mode")) {
+            db.createObjectStore("DarkMode", { keyPath: "darkModeKey" });
+        }
 
-		if (!db.objectStoreNames.contains("Mode")) {
-			db.createObjectStore("DarkMode", {
-				keyPath: "darkModeKey"
-			});
-		}
+        if (!db.objectStoreNames.contains("ZipFiles")) {
+            db.createObjectStore("ZipFiles", { keyPath: "zipId" });
+        }
+    };
 
-		if (!db.objectStoreNames.contains("ZipFiles")) {
-			db.createObjectStore("ZipFiles", {
-				keyPath: "zipId"
-			})
-		}
-	};
-
-	request.onsuccess = (event) => {
-		const db = event.target.result;
-
-		/*console.log("IndexedDB ready");*/
-
-		resolve(db);
-	};
+    request.onsuccess = (event) => resolve(event.target.result);
     request.onerror = (event) => {
-        console.error(
-            "Could not open IndexedDB:",
-            event.target.error
-        );
-
+        console.error("Could not open IndexedDB:", event.target.error);
         reject(event.target.error);
     };
 });
 
 async function saveDarkMode() {
-	const db = await dbPromise;
-
-	return new Promise((resolve, reject) => {
-		const transaction = db.transaction("DarkMode", "readwrite");
-		const store = transaction.objectStore("DarkMode");
-
-		store.put({
-			darkModeKey: "DMK",
-			darkModeSet
-		});
-        transaction.oncomplete = () => {
-            resolve();
-        };
-        transaction.onerror = () => {
-            console.error(
-                "Could not save current dark mode:",
-                transaction.error
-            );
-
-            reject(transaction.error);
-        };
-
-	}) 
-
-}
-
-async function saveProgress(gameId, progress) {
-	const db = await dbPromise;
-
-	return new Promise((resolve, reject) => {
-        const transaction = db.transaction("progress","readwrite");
-        const store = transaction.objectStore("progress");
-
-        store.put({
-            gameId: gameId,
-            ...progress
-        });
-
-        transaction.oncomplete = () => {
-            console.log("Progress saved:", gameId);
-            resolve();
-        };
-
-        transaction.onerror = () => {
-            console.error(
-                "Could not save progress:",
-                transaction.error
-            );
-
-            reject(transaction.error);
-        };
-	});
-}
-
-async function saveStars(fileId, stars) {
-	const db = await dbPromise;
-
-	return new Promise((resolve, reject) => {
-        const transaction = db.transaction("StarS","readwrite");
-        const store = transaction.objectStore("StarS");
-
-        store.put({
-        	fileId: fileId,
-        	stars
-        })
-
-        transaction.oncomplete = () => {
-            console.log("starts saved:", fileId);
-            resolve();
-        };
-
-        transaction.onerror = () => {
-            console.error(
-                "Could not save starts:",
-                transaction.error
-            );
-
-            reject(transaction.error);
-        };	
-	});
-}
-
-async function saveZipFile(file, zipId) {
-	const db = await dbPromise;
-
-	return new Promise((resolve, reject) => {
-        const transaction = db.transaction("ZipFiles","readwrite");
-        const store = transaction.objectStore("ZipFiles");
-
-        store.put({
-        	zipId: zipId,
-        	file: file,
-        	curName,
-        })
-
-        transaction.oncomplete = () => {
-            console.log(".zip saved:", zipId);
-            resolve();
-        };
-
-        transaction.onerror = () => {
-            console.error(
-                "Could not save .zip:",
-                transaction.error
-            );
-
-            reject(transaction.error);
-        };	
-	});
-}
-
-async function loadDarkMode() {
-	const db = await dbPromise;
-	/*console.log(db)*/
-
-	return new Promise((resolve, reject) => {
-		const transaction = db.transaction("DarkMode", "readonly");
-		const store = transaction.objectStore("DarkMode");
-
-		const req = store.get("DMK");
-
-		req.onsuccess = () => {
-			if (!req.result) {
-				resolve(null);
-				return;
-			}
-
-			resolve(req.result);
-		};
-
-		req.onerror = () => {
-			reject(req.error);
-		}
-	});
-}
-
-async function loadProgress(gameId) {
-	const db = await dbPromise;
-
-	return new Promise((resolve, reject) => {
-  		const transaction = db.transaction("progress", "readonly");
-  		const store = transaction.objectStore("progress");
-
-  		const request = store.get(gameId);
-
-        request.onsuccess = () => {
-
-            // No progress yet
-            if (!request.result) {
-                resolve(null);
-                return;
-            }
-
-            // Existing progress
-            resolve(request.result);
-        };
-
-        request.onerror = () => {
-            reject(request.error);
-        };
-	});
-}
-
-async function loadStars(fileId) {
-	const db = await dbPromise;
-
-	return new Promise((resolve, reject) => {
-  		const transaction = db.transaction("StarS", "readonly");
-  		const store = transaction.objectStore("StarS");
-
-  		const request = store.get(fileId);
-
-        request.onsuccess = () => {
-
-            // No progress yet
-            if (!request.result) {
-                resolve(null);
-                return;
-            }
-
-            // Existing progress
-            resolve(request.result);
-        };
-
-        request.onerror = () => {
-            reject(request.error);
-        };
-	});
-}
-
-async function loadZipFiles() {
-	const db = await dbPromise;
-
-	return new Promise((resolve, reject) => {
-        const transaction = db.transaction("ZipFiles","readonly");
-        const store = transaction.objectStore("ZipFiles");
-
-        const request = store.getAll();
-
-        request.onsuccess = () => {
-        	resolve(request.result);
-        }
-        request.onerror = () => {
-        	reject(request.error);
-        }
-	});
-}
-
-async function deleteStars(fileId) {
-
     const db = await dbPromise;
 
     return new Promise((resolve, reject) => {
+        const transaction = db.transaction("DarkMode", "readwrite");
+        const store = transaction.objectStore("DarkMode");
 
-        const transaction = db.transaction("StarS", "readwrite");
-
-        const store = transaction.objectStore("StarS");
-
-        store.delete(fileId);
-
-        transaction.oncomplete = () => {
-            console.log("Progress deleted:", fileId);
-            resolve();
-        };
-
+        store.put({ darkModeKey: "DMK", darkModeSet });
+        transaction.oncomplete = () => resolve();
         transaction.onerror = () => {
-        	alert("Odstranění selhalo!");
+            console.error("Could not save current dark mode:", transaction.error);
             reject(transaction.error);
         };
     });
-
 }
 
-async function deleteProgress(gameId) {
-
+async function saveProgress(gameId, progress) {
     const db = await dbPromise;
 
     return new Promise((resolve, reject) => {
-
         const transaction = db.transaction("progress", "readwrite");
+        const store = transaction.objectStore("progress");
 
+        store.put({ gameId: gameId, ...progress });
+
+        transaction.oncomplete = () => resolve();
+        transaction.onerror = () => {
+            console.error("Could not save progress:", transaction.error);
+            reject(transaction.error);
+        };
+    });
+}
+
+async function saveStars(fileId, stars) {
+    const db = await dbPromise;
+
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction("StarS", "readwrite");
+        const store = transaction.objectStore("StarS");
+
+        store.put({ fileId: fileId, stars });
+
+        transaction.oncomplete = () => resolve();
+        transaction.onerror = () => {
+            console.error("Could not save stars:", transaction.error);
+            reject(transaction.error);
+        };
+    });
+}
+
+async function saveZipFile(file, zipId) {
+    const db = await dbPromise;
+
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction("ZipFiles", "readwrite");
+        const store = transaction.objectStore("ZipFiles");
+
+        store.put({ zipId: zipId, file: file, curName });
+
+        transaction.oncomplete = () => resolve();
+        transaction.onerror = () => {
+            console.error("Could not save .zip:", transaction.error);
+            reject(transaction.error);
+        };
+    });
+}
+
+async function loadDarkMode() {
+    const db = await dbPromise;
+
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction("DarkMode", "readonly");
+        const store = transaction.objectStore("DarkMode");
+        const req = store.get("DMK");
+
+        req.onsuccess = () => resolve(req.result || null);
+        req.onerror = () => reject(req.error);
+    });
+}
+
+async function loadProgress(gameId) {
+    const db = await dbPromise;
+
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction("progress", "readonly");
+        const store = transaction.objectStore("progress");
+        const request = store.get(gameId);
+
+        request.onsuccess = () => resolve(request.result || null);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+async function loadStars(fileId) {
+    const db = await dbPromise;
+
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction("StarS", "readonly");
+        const store = transaction.objectStore("StarS");
+        const request = store.get(fileId);
+
+        request.onsuccess = () => resolve(request.result || null);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+async function loadZipFiles() {
+    const db = await dbPromise;
+
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction("ZipFiles", "readonly");
+        const store = transaction.objectStore("ZipFiles");
+        const request = store.getAll();
+
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+async function deleteStars(fileId) {
+    const db = await dbPromise;
+
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction("StarS", "readwrite");
+        const store = transaction.objectStore("StarS");
+
+        store.delete(fileId);
+        transaction.oncomplete = () => resolve();
+        transaction.onerror = () => {
+            alert("Odstranění selhalo!");
+            reject(transaction.error);
+        };
+    });
+}
+
+async function deleteProgress(gameId) {
+    const db = await dbPromise;
+
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction("progress", "readwrite");
         const store = transaction.objectStore("progress");
 
         store.delete(gameId);
-
         transaction.oncomplete = () => {
-            console.log("Progress deleted:", gameId);
             deleteStars(gameId);
             resolve();
         };
-
         transaction.onerror = () => {
-        	alert("Odstranění selhalo!");
+            alert("Odstranění selhalo!");
             reject(transaction.error);
         };
     });
@@ -1598,85 +1563,68 @@ async function deleteZip(zipId) {
     return new Promise((resolve, reject) => {
         const transaction = db.transaction("ZipFiles", "readwrite");
         const store = transaction.objectStore("ZipFiles");
-
         const request = store.delete(zipId);
 
-        request.onsuccess = () => {
-        	console.log("zip file deleted:", zipId);
-        	resolve();
-        }
+        request.onsuccess = () => resolve();
         request.onerror = () => reject(request.error);
     });
 }
 
-function getCreatedIdFromName(){
-	let ewocafimo;
-
-	for (const kez in createdIds) {
-		if (createdIds[kez] == curTopicName) {
-			ewocafimo = kez;
-			break;
-		}
-	}
-	return ewocafimo;
+function getCreatedIdFromName() {
+    let ewocafimo;
+    for (const kez in createdIds) {
+        if (createdIds[kez] == curTopicName) {
+            ewocafimo = kez;
+            break;
+        }
+    }
+    return ewocafimo;
 }
 
 async function loadZipInside(fileName) {
-	const response = await fetch(fileName);
+    const response = await fetch(fileName);
 
-	if (!response.ok) {
-		throw new Error(`Couldn't load ${fileName}`)
-	}
+    if (!response.ok) {
+        throw new Error(`Couldn't load ${fileName}`);
+    }
 
-	const blob = await response.blob()
+    const blob = await response.blob();
+    const file = new File([blob], "math.zip", { type: "application/zip" });
 
-	const file = new File([blob], "math.zip", {
-    	type: "application/zip"
-	});
-
-	loadAZipFile(file, true);
+    loadAZipFile(file, true);
 }
 
-/*curName = "Test1";
-loadZipInside("Test1.zip")*/
-
 async function loadDarkModeFromDB() {
-	const haveIt = await loadDarkMode();
+    const haveIt = await loadDarkMode();
 
-	if(haveIt) {
-		darkModeSet = haveIt.darkModeSet
-		setDarkMode();
-		console.log("dark mode loaded", darkModeSet)
-	} else {
-		darkModeSet = false;
-		setDarkMode();
-	}
+    if (haveIt) {
+        darkModeSet = haveIt.darkModeSet;
+        setDarkMode();
+    } else {
+        darkModeSet = false;
+        setDarkMode();
+    }
 }
 
 async function loadAllZipsAtStart() {
-	const zips = await loadZipFiles();
+    const zips = await loadZipFiles();
 
     for (const zip of zips) {
-        console.log("START ZIP:", zip.zipId);
-		menuPage.style.display = "none";
-
+        menuPage.style.display = "none";
         curName = zip.curName;
-
         await loadAZipFile(zip.file, true);
-
-        console.log("FINISHED ZIP:", zip.zipId);
     }
 }
 
 function setDarkMode() {
-	if (darkModeSet) {
-		document.documentElement.classList.toggle("dark");
-		darkModeButton.innerHTML = `<img src="icons/sun-solid-full.svg" class="icon sizethree" alt=""></img>`
-	} else {
-		document.documentElement.classList.remove("dark");
-		darkModeButton.innerHTML = `<img src="icons/moon-solid-full.svg" class="icon sizethree" alt=""></img>`
-	}
-	saveDarkMode();
+    if (darkModeSet) {
+        document.documentElement.classList.toggle("dark");
+        darkModeButton.innerHTML = `<img src="icons/sun-solid-full.svg" class="icon sizethree" alt=""></img>`;
+    } else {
+        document.documentElement.classList.remove("dark");
+        darkModeButton.innerHTML = `<img src="icons/moon-solid-full.svg" class="icon sizethree" alt=""></img>`;
+    }
+    saveDarkMode();
 }
 
 loadDarkModeFromDB();
