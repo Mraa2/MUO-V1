@@ -304,6 +304,22 @@ p {
     box-sizing: border-box;
 }
 
+.buttonTopic {
+    margin: 0 auto;
+    margin-top: 1vh;
+    border-radius: 1vh;
+
+    height: auto;
+    min-height: max-content;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    padding: 1vh 1.5vw;
+
+    display: block;
+    position: relative;
+    box-sizing: border-box;
+}
+
 .subtopicAbove {
     background-color: transparent;
     height: 5vh;

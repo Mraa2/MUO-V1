@@ -61,6 +61,14 @@ function updateFieldSize(){
 		button01.style.borderRadius = `${(hf1 + siz2)*0.25}vh`;
 	});
 
+	const buttonTopics = document.querySelectorAll(".buttonTopic");
+	buttonTopics.forEach(button01 => {
+
+		button01.style.width = `${wf1 + sizing}vw`;
+		button01.style.fontSize = `${(hf1 + siz2)*0.55}vh`;
+		button01.style.borderRadius = `${(hf1 + siz2)*0.25}vh`;
+	});
+
 	const subtopicAbove = document.querySelectorAll(".subtopicAbove")
 	subtopicAbove.forEach(stA => {
 		stA.style.width = `calc(${(wf1 + sizing)}vw - ${(hf1 + siz2)*0.5}vh)`;

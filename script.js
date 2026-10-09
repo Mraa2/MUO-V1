@@ -105,7 +105,7 @@ const originalPushState = history.pushState;
 
 history.pushState = function (state, title, url) {
     originalPushState.call(this, state, title, url);
-    logHistory("PUSH", state);
+    /*logHistory("PUSH", state);*/
 
     if (state?.page === "questPage") {
         console.trace(">>> PUSH QUESTPAGE");
@@ -120,7 +120,7 @@ const originalReplaceState = history.replaceState;
 
 history.replaceState = function (state, title, url) {
     originalReplaceState.call(this, state, title, url);
-    logHistory("REPLACE", state);
+    /*logHistory("REPLACE", state);*/
 
     if (state?.page === "questPage") {
         console.trace(">>> REPLACE QUESTPAGE");
@@ -171,7 +171,7 @@ let isQuizActive = false; // Tracks active quiz state
 
 window.addEventListener("popstate", (event) => {
     const currentState = event.state;
-    logHistory("POP", currentState);
+    /*logHistory("POP", currentState);*/
     const now = Date.now();
 
     // =========================================
@@ -534,7 +534,7 @@ function createQuestionClasses() {
                 newStrng.push(`<div class="subtopicAbove">Podle tématu</div>`);
                 done = true;
             }
-            newStrng.push(`<button type="button" data-qtp="${value}" id="${value}(FLIDF)" class="button01">
+            newStrng.push(`<button type="button" data-qtp="${value}" id="${value}(FLIDF)" class="buttonTopic">
                 ${value}
             </button>`);
             buttonIds123.push(`${value}(FLIDF)`);
